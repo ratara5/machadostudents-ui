@@ -38,7 +38,7 @@ public class Students extends AbstractController implements Consumer<List<Studen
         webClientMachado.studentsAll().subscribe(this); //Implement Consumer
 
 
-        MenuItem edit = new MenuItem("Edit Product");
+        MenuItem edit = new MenuItem("Edit Student");
         edit.setOnAction(event -> {
             Student student = studentTable.getSelectionModel().getSelectedItem();
             if(null != student) {
@@ -49,16 +49,19 @@ public class Students extends AbstractController implements Consumer<List<Studen
             }
         });
 
-        MenuItem changeState = new MenuItem("Change Status");
+        MenuItem changeState = new MenuItem("Delete Student");
         changeState.setOnAction(event -> {
             Student student = studentTable.getSelectionModel().getSelectedItem();
 
             Dialog.DialogBuilder.builder()
-                    .title("Change Status")
-                    .message(String.format("Do you want to do something with %s?", student.getName()))
+                    .title("Delete Student")
+                    .message(String.format("Do you want to delete student: %s?", student.getName()))
                     .okActionListener(() -> {
-                        webClientMachado.addStudent(student);
-                        search();
+                        //webClientMachado.addStudent(student);
+                        //search();
+                        System.out.println("studentId from UI: " + student.getStudentId() );
+                        //webClientMachado.deleteStudent(student.getStudentId()+"");
+                        this.delete(student.getStudentId());
                     })
                     .build().show();
         });
@@ -89,6 +92,11 @@ public class Students extends AbstractController implements Consumer<List<Studen
 
     private void save(Student student) {
         webClientMachado.addStudent(student);
+        initialize();
+    }
+
+    private void delete(Integer studentId) {
+        webClientMachado.deleteStudent(studentId+"").subscribe();
         initialize();
     }
 

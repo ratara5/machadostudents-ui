@@ -108,6 +108,7 @@ public class StudentEdit {
         rol.setValue(this.student.getRol());
         nameField.setText(this.student.getName());
         lastNameField.setText(this.student.getLastName());
+        genreField.setText(this.student.getGenre());
         phoneNumberField.setText(this.student.getPhoneNumber());
         addressField.setText(this.student.getAddress());
         emailField.setText(this.student.getEmail());
