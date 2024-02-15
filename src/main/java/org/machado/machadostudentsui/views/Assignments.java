@@ -10,6 +10,7 @@ import org.machado.machadostudentsclient.WebClientMachado;
 import org.machado.machadostudentsclient.entity.Assignment;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
+import org.machado.machadostudentsui.utils.PdfAssignmentManager;
 import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
 
@@ -140,7 +141,8 @@ public class Assignments
         return studentById;
     }
 
-    private static Map<LocalDate, Map<String, List<Assignment>>> groupData(List<Assignment> assignments) {
+    // BEFORE: THis method in this class
+    /*private static Map<LocalDate, Map<String, List<Assignment>>> groupData(List<Assignment> assignments) {
 
         Map<LocalDate, Map<String, List<Assignment>>> groupedData = new LinkedHashMap<>();
         for (Assignment assignment : assignments) {
@@ -157,9 +159,9 @@ public class Assignments
         }
         return groupedData;
 
-    }
+    }*/
 
-    private static void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData) {
+    /*private static void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData) {
 
         float FONT_SIZE = 8f;
         float INTERLINE = 6f;
@@ -242,7 +244,7 @@ public class Assignments
             e.printStackTrace();
         }
 
-    }
+    }*/
 
     @FXML
     private void generatePdf() {
@@ -261,15 +263,18 @@ public class Assignments
 
             List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
 
-            Map<LocalDate, Map<String, List<Assignment>>> groupedData = groupData(assignments);
+            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(assignments);
             // Generate PDF
-            generatePDF(groupedData);
+            /*generatePDF(groupedData);*/ //BEFORE with generatePDF method in this class
+            PdfAssignmentManager.generatePDF(groupedData);
+
 
         }
 
     }
 
-    public  void fillForms(List<Assignment> assignments) { //public static void
+    // BEFORE: THis method in this class
+    /*public  void fillForms(List<Assignment> assignments) { //public static void
 
         try {
             int i = 0;
@@ -339,7 +344,7 @@ public class Assignments
             e.printStackTrace();
         }
 
-    }
+    }*/
 
     @FXML
     private void generateAssignments() {
@@ -357,8 +362,9 @@ public class Assignments
             String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
-
-            fillForms(assignments);
+            /*fillForms(assignments);*/ //BEFORE with fillForms method in this class
+            List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
+            PdfAssignmentManager.fillForms(assignments, listStudentsAssignment);
 
         }
 
