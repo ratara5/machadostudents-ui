@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<HBox maxHeight="-Infinity"
+      maxWidth="-Infinity"
+      minHeight="-Infinity"
+      minWidth="-Infinity"
+      prefHeight="400.0"
+      prefWidth="600.0"
+      styleClass="main-frame"
+      stylesheets="@style/application.css"
+      xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.machado.machadostudentsui.views.MainFrame">
+   <children>
+      <VBox fx:id="sideBar" styleClass="side-bar">
+         <children>
+            <VBox fx:id="Home" onMouseClicked="#clickMenu">
+               <children>
+                  <SVGPath content="M28 15.5v-13c0-0.266-0.234-0.5-0.5-0.5h-25c-0.266 0-0.5 0.234-0.5 0.5v13c0 0.266 0.234 0.5 0.5 0.5h25c0.266 0 0.5-0.234 0.5-0.5zM30 2.5v17c0 1.375-1.125 2.5-2.5 2.5h-8.5c0 1.328 1 2.453 1 3s-0.453 1-1 1h-8c-0.547 0-1-0.453-1-1 0-0.578 1-1.641 1-3h-8.5c-1.375 0-2.5-1.125-2.5-2.5v-17c0-1.375 1.125-2.5 2.5-2.5h25c1.375 0 2.5 1.125 2.5 2.5z" />
+                  <Label text="HOME" />
+               </children>
+               <styleClass>
+                  <String fx:value="side-bar-menu" />
+                  <String fx:value="active" />
+               </styleClass>
+            </VBox>
+            <!--<VBox id="Pos" layoutX="10.0" layoutY="10.0" onMouseClicked="#clickMenu" styleClass="side-bar-menu">
+               <children>
+                  <SVGPath content="M10 24c0 1.094-0.906 2-2 2s-2-0.906-2-2 0.906-2 2-2 2 0.906 2 2zM24 24c0 1.094-0.906 2-2 2s-2-0.906-2-2 0.906-2 2-2 2 0.906 2 2zM26 7v8c0 0.5-0.391 0.938-0.891 1l-16.312 1.906c0.078 0.359 0.203 0.719 0.203 1.094 0 0.359-0.219 0.688-0.375 1h14.375c0.547 0 1 0.453 1 1s-0.453 1-1 1h-16c-0.547 0-1-0.453-1-1 0-0.484 0.703-1.656 0.953-2.141l-2.766-12.859h-3.187c-0.547 0-1-0.453-1-1s0.453-1 1-1h4c1.047 0 1.078 1.25 1.234 2h18.766c0.547 0 1 0.453 1 1z" />
+                  <Label text="POS" />
+               </children>
+            </VBox>-->
+            <VBox fx:id="Assignment" layoutX="10.0" layoutY="80.0" onMouseClicked="#clickMenu" styleClass="side-bar-menu">
+               <children>
+                  <SVGPath content="M29 4h-9c0-2.209-1.791-4-4-4s-4 1.791-4 4h-9c-0.552 0-1 0.448-1 1v26c0 0.552 0.448 1 1 1h26c0.552 0 1-0.448 1-1v-26c0-0.552-0.448-1-1-1zM16 2c1.105 0 2 0.895 2 2s-0.895 2-2 2c-1.105 0-2-0.895-2-2s0.895-2 2-2zM28 30h-24v-24h4v3c0 0.552 0.448 1 1 1h14c0.552 0 1-0.448 1-1v-3h4v24z" />
+                  <Label text="ASSIGNMENTS" />
+               </children>
+            </VBox>
+            <VBox fx:id="Rol" layoutX="10.0" layoutY="150.0" onMouseClicked="#clickMenu" styleClass="side-bar-menu">
+               <children>
+                  <SVGPath content="M30.5 24h-0.5v-6.5c0-1.93-1.57-3.5-3.5-3.5h-8.5v-4h0.5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h0.5v4h-8.5c-1.93 0-3.5 1.57-3.5 3.5v6.5h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5zM6 30h-4v-4h4v4zM18 30h-4v-4h4v4zM14 8v-4h4v4h-4zM30 30h-4v-4h4v4z" />
+                  <Label text="ROLES" />
+               </children>
+            </VBox>
+            <VBox fx:id="Student" layoutX="10.0" layoutY="220.0" onMouseClicked="#clickMenu" styleClass="side-bar-menu">
+               <children>
+                  <SVGPath content="M24 24.082v-1.649c2.203-1.241 4-4.337 4-7.432 0-4.971 0-9-6-9s-6 4.029-6 9c0 3.096 1.797 6.191 4 7.432v1.649c-6.784 0.555-12 3.888-12 7.918h28c0-4.030-5.216-7.364-12-7.918z" />
+                  <Label text="STUDENTS" />
+               </children>
+            </VBox>
+            <VBox fx:id="Exit" layoutX="10.0" layoutY="290.0" onMouseClicked="#clickMenu" styleClass="side-bar-menu">
+               <children>
+                  <SVGPath content="M24 14c0 6.609-5.391 12-12 12s-12-5.391-12-12c0-3.797 1.75-7.297 4.797-9.578 0.891-0.672 2.141-0.5 2.797 0.391 0.672 0.875 0.484 2.141-0.391 2.797-2.031 1.531-3.203 3.859-3.203 6.391 0 4.406 3.594 8 8 8s8-3.594 8-8c0-2.531-1.172-4.859-3.203-6.391-0.875-0.656-1.062-1.922-0.391-2.797 0.656-0.891 1.922-1.062 2.797-0.391 3.047 2.281 4.797 5.781 4.797 9.578zM14 2v10c0 1.094-0.906 2-2 2s-2-0.906-2-2v-10c0-1.094 0.906-2 2-2s2 0.906 2 2z" />
+                  <Label text="EXIT" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <StackPane fx:id="contentView" HBox.hgrow="ALWAYS" />
+   </children>
+</HBox>

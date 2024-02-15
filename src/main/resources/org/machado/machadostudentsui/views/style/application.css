@@ -1,0 +1,260 @@
+* {
+    primary : #464159;
+    secondary: #6c7b95;
+    primary-light: #8bbabb;
+    secondary-light: #c7f0db;
+}
+
+.login-view {
+    -fx-pref-width: 420px;
+    -fx-background-color: secondary-light;
+}
+
+.login-title {
+    -fx-alignment: center-left;
+    -fx-padding: 16px;
+    -fx-background-color: primary;
+}
+
+.login-title > .header {
+    -fx-font-size: 20px;
+    -fx-text-fill: secondary-light;
+}
+
+.login-body {
+    -fx-padding: 0 64 16 16;
+}
+
+.al-center-left {
+    -fx-alignment: center-left;
+}
+
+.sp-5 {
+    -fx-spacing: 5px;
+}
+
+.wid-120 {
+    -fx-pref-width: 120px;
+}
+
+.text-field, .password-field, .button, .combo-box {
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-color: secondary;
+}
+
+.text-area {
+    -fx-pref-height: 80px;
+    -fx-border-style: solid;
+    -fx-border-color: secondary;
+}
+
+.text-area,
+.text-area .scroll-pane,
+.text-area .scroll-pane .viewport,
+.text-area .scroll-pane .content
+ {
+    -fx-background-color: transparent;
+}
+
+.table-view {
+    -fx-padding: 0px;
+	-fx-border-style: solid;
+	-fx-border-width: 0.5;
+	-fx-border-color: grey;
+}
+
+.table-view, .table-view:focused {
+	-fx-background-color: transparent;
+}
+
+.table-view .column-header,
+.table-view .column-header-background
+ {
+	-fx-background-color: secondary;
+	-fx-pref-height: 30px;
+}
+
+.table-view .column-header .label{
+	-fx-text-fill: secondary-light;
+}
+
+
+.button:hover, .button:focused {
+    -fx-background-color : primary;
+    -fx-text-fill: secondary-light;
+}
+
+.main-frame {
+    -fx-pref-width: 1280px;
+    -fx-pref-height: 780px;
+}
+
+.side-bar {
+    -fx-padding: 10 0 0 0;
+    -fx-background-color: primary;
+}
+
+.side-bar-menu {
+    -fx-alignment: center;
+    -fx-spacing: 5px;
+    -fx-pref-height: 70px;
+    -fx-pref-width: 100px;
+    -fx-min-width:100px;
+}
+
+.side-bar-menu:hover {
+    -fx-background-color: secondary-light;
+}
+
+.side-bar-menu:hover .label, .side-bar-menu:hover SVGPath{
+    -fx-fill: primary;
+    -fx-text-fill: primary;
+}
+
+.side-bar-menu .label, .side-bar-menu SVGPath {
+    -fx-fill: secondary-light;
+    -fx-text-fill: secondary-light;
+}
+
+.side-bar-menu.active {
+    -fx-background-color: secondary;
+}
+
+.content-view {
+    -fx-pref-width: 1180px;
+    -fx-pref-height: 780px;
+    -fx-max-width: 5000px;
+    -fx-max-height: 3000px;
+}
+
+.content-view-header {
+    -fx-padding: 20 0 10 20;
+}
+
+.content-view-header > .title {
+    -fx-font-size: 32px;
+}
+
+.add-button {
+    -fx-alignment: center;
+    -fx-pref-width: 80px;
+}
+
+.add-button:hover {
+    -fx-background-color: primary-light;
+}
+
+.add-button:hover SVGPath {
+    -fx-fill: secondary-light;
+}
+
+
+.dialog {
+    -fx-pref-width: 600px;
+    -fx-background-color: secondary-light;
+}
+
+.dialog-icon {
+    -fx-pref-width: 160px;
+    -fx-alignment: top-center;
+    -fx-padding: 50 0 0 0;
+    -fx-background-color: primary;
+}
+
+.dialog-icon SVGPath {
+    -fx-fill: secondary-light;
+}
+
+.dialog-body {
+    -fx-padding: 20px;
+    -fx-alignment: center-left;
+}
+
+.dialog-title {
+    -fx-font-size: 24px;
+}
+
+.dialog-message-box {
+    -fx-padding: 10 0 20 0;
+    -fx-spacing: 5;
+}
+
+.dialog-input-box {
+    -fx-spacing: 5;
+}
+
+.dialog-message-box > Label {
+    -fx-font-size: 18px;
+}
+
+.dialog-button-box {
+    -fx-alignment: center-right;
+    -fx-spacing: 10px;
+}
+
+.sp-10 {
+    -fx-spacing: 10;
+}
+
+.rol-container {
+    -fx-padding: 0 20 20 20;
+    -fx-vgap: 20;
+    -fx-hgap: 20;
+}
+
+.rol-item {
+    -fx-alignment: center-left;
+    -fx-padding: 20;
+    -fx-spacing: 20;
+    -fx-pref-width: 240px;
+    -fx-background-color: secondary;
+}
+
+.rol-item Label {
+    -fx-font-size: 24px;
+    -fx-text-fill: secondary-light;
+}
+
+.rol-item SVGPath {
+    -fx-fill: secondary-light;
+}
+
+.search-bar {
+    -fx-padding: 0 0 0 20;
+    -fx-spacing: 10;
+}
+
+.search-bar > TextField, .search-bar > ComboBox {
+    -fx-pref-width: 200px;
+    -fx-max-width: 280px;
+}
+
+.table-wrapper {
+    -fx-padding: 20;
+}
+
+.gridPane {
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+
+}
+
+.gridPane Label {
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-min-height: 20px;
+    -fx-max-height: 20px;
+    -fx-min-width: 50%;
+    -fx-max-width: 50%
+    -fx-alignment: center;
+    -fx-background-color: white;
+}
+
+.gridPane .label-row-0 {
+    -fx-text-fill: white ;
+    -fx-font-weight: bold;
+    -fx-background-color: primary;
+}

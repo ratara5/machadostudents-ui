@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+
+
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<?import javafx.geometry.Insets?>
+<VBox maxHeight="-Infinity"
+      maxWidth="-Infinity"
+      minHeight="-Infinity"
+      minWidth="-Infinity"
+      prefHeight="400.0"
+      prefWidth="600.0"
+      styleClass="content-view"
+      stylesheets="@style/application.css"
+      xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.machado.machadostudentsui.views.Students">
+    <children>
+        <HBox>
+            <children>
+                <HBox styleClass="content-view-header" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="title" styleClass="title" text="Student" />
+                    </children>
+                </HBox>
+                <VBox onMouseClicked="#addNew" styleClass="add-button">
+                    <children>
+                        <SVGPath content="M22 11.5v3c0 0.828-0.672 1.5-1.5 1.5h-6.5v6.5c0 0.828-0.672 1.5-1.5 1.5h-3c-0.828 0-1.5-0.672-1.5-1.5v-6.5h-6.5c-0.828 0-1.5-0.672-1.5-1.5v-3c0-0.828 0.672-1.5 1.5-1.5h6.5v-6.5c0-0.828 0.672-1.5 1.5-1.5h3c0.828 0 1.5 0.672 1.5 1.5v6.5h6.5c0.828 0 1.5 0.672 1.5 1.5z" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+        <HBox styleClass="search-bar">
+            <children>
+                <ComboBox fx:id="rol" prefWidth="150.0" />
+                <TextField fx:id="name" promptText="Student Name" />
+                <Button mnemonicParsing="false" onAction="#search" styleClass="wid-120" text="SEARCH" />
+                <Button layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#clear" styleClass="wid-120" text="CLEAR" />
+                <!--<Button layoutX="580.0" layoutY="10.0" mnemonicParsing="false" onAction="#upload" styleClass="wid-120" text="UPLOAD" />-->
+            </children>
+        </HBox>
+        <VBox alignment="CENTER">
+            <padding>
+                <Insets top="10"/>
+            </padding>
+            <TableView fx:id="studentTable" prefHeight="800.0" prefWidth="1000.0">
+                <columns>
+                    <!--<TableColumn text="Entity ID">
+                            <cellValueFactory>
+                            <PropertyValueFactory property="studentId"/>
+                        </cellValueFactory>
+                    </TableColumn>-->
+                    <TableColumn text="Name">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="name"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="LastName">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="lastName"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Genre">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="genre"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="PhoneNumber">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="phoneNumber"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <!--<TableColumn text="Address">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="address"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Email">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="email"/>
+                        </cellValueFactory>
+                    </TableColumn>-->
+                    <TableColumn text="RolId">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="rolId"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <!--<TableColumn text="ContactId">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="contactId"/>
+                        </cellValueFactory>
+                    </TableColumn>-->
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </children>
+</VBox>
+

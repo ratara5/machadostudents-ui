@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<HBox
+        styleClass="dialog"
+        stylesheets="@../style/application.css"
+        xmlns="http://javafx.com/javafx/8.0.171"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.machado.machadostudentsui.views.popups.RolEdit">
+   <children>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" styleClass="dialog-icon">
+         <children>
+            <SVGPath content="M30.5 24h-0.5v-6.5c0-1.93-1.57-3.5-3.5-3.5h-8.5v-4h0.5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h0.5v4h-8.5c-1.93 0-3.5 1.57-3.5 3.5v6.5h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5h-0.5v-6h8v6h-0.5c-0.825 0-1.5 0.675-1.5 1.5v5c0 0.825 0.675 1.5 1.5 1.5h5c0.825 0 1.5-0.675 1.5-1.5v-5c0-0.825-0.675-1.5-1.5-1.5zM6 30h-4v-4h4v4zM18 30h-4v-4h4v4zM14 8v-4h4v4h-4zM30 30h-4v-4h4v4z" scaleX="3.0" scaleY="3.0" />
+         </children>
+      </VBox>
+      <VBox styleClass="dialog-body" HBox.hgrow="ALWAYS">
+         <children>
+            <Label fx:id="title" styleClass="dialog-title" text="Label" />
+            <VBox styleClass="dialog-message-box">
+               <children>
+                  <Label fx:id="message" />
+                  <VBox styleClass="dialog-input-box">
+                     <children>
+                        <Label text="Rol Name" />
+                        <TextField fx:id="name" promptText="Enter Rol  Name" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <HBox styleClass="dialog-button-box">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#close" styleClass="wid-120" text="CLOSE" />
+                  <Button layoutX="290.0" layoutY="10.0" mnemonicParsing="false" onAction="#save" styleClass="wid-120" text="SAVE" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</HBox>
