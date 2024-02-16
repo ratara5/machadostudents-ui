@@ -282,7 +282,7 @@
     -fx-background-color: primary-light;
 }*/
 
-.dashboard-section {
+/*.dashboard-section {
     -fx-padding: 20 0 10 20;
     -fx-border-color: primary;
     -fx-border-width: 2;
@@ -305,4 +305,4 @@
 .dashboard-section > .button:hover, .button:focused{
     -fx-background-color : primary;
     -fx-text-fill: secondary-light;
-}
+}*/
