@@ -2,22 +2,31 @@ package org.machado.machadostudentsui.views;
 
 
 import com.itextpdf.kernel.colors.DeviceRgb;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.machado.machadostudentsclient.WebClientMachado;
+import org.machado.machadostudentsclient.entity.Rol;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDate;
+import java.util.*;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 
 @Controller
@@ -35,10 +44,38 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
     @FXML
     public void initialize(){
         //webClientMachado.studentsAll().subscribe(this); //Implement Consumer
+        //int totalStudents = students.size();
+        //countStudentsLabel.setText(String.valueOf(totalStudents));
 
         List<Student> students = webClientMachado.studentsAll().block();
         int totalStudents = students.size();
-        //countStudentsLabel.setText(String.valueOf(totalStudents));
+
+        List<Rol> listRol = students.stream()
+                .map(Student::getRol)
+                .collect(Collectors.toList());
+        List<String> listRolName = listRol.stream()
+                .map(Rol::getName)
+                .collect(Collectors.toList());
+        List<String> listDistinctRolName = listRolName.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        HashMap<String, Integer> rolesMap = new LinkedHashMap<>();
+        for (String rolName: listDistinctRolName) {
+            Integer counted = listRolName.stream()
+                    .filter(x-> Objects.equals(x, rolName))
+                    .collect(Collectors.toList())
+                    .size();
+            rolesMap.put(rolName, counted);
+        }
+
+        ObservableList<PieChart.Data> chartList = observableArrayList();
+
+        for (String rolName : rolesMap.keySet()){
+            PieChart.Data pieChartData = new PieChart.Data(rolName, rolesMap.get(rolName));
+            chartList.add(pieChartData);
+        }
+        final PieChart chart = new PieChart(chartList);
 
         List<StudentsAssignment> studentsAssignments = webClientMachado.studentsAssignmentAll().block();
         int totalStudentsAssignments = studentsAssignments.size();
@@ -113,10 +150,13 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
             button.setOnMouseEntered(e->{button.setStyle(cssButtonHover);});
             button.setOnMouseExited(e->{button.setStyle(cssButton);});
 
-            vbox.getChildren().addAll(labelTitle, labelContent, button);
+            vbox.getChildren().addAll(labelTitle, labelContent, button); //chart
             vbox.setStyle(cssVBox);
+            if(name.equals("students")){
+                vbox.getChildren().add(chart);
+            }
 
-            gridPane.add(vbox, 0, i+1);
+            gridPane.add(vbox, i+0, 0);
             i++;
         }
 
