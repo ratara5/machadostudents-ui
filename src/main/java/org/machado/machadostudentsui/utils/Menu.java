@@ -3,8 +3,8 @@ package org.machado.machadostudentsui.utils;
 
 public enum Menu {
 
-    Home("POS Dashboard"),
-    Assignment("Assignment Management"),
+    Home("AYFM Dashboard"),
+    Assignment("Assignments Management"),
     Rol("Roles Management"),
     Student("Students Management");
 

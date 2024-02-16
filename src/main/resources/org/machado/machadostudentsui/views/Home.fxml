@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
+<?import javafx.scene.control.Button?>
 <VBox maxHeight="-Infinity"
       fx:controller="org.machado.machadostudentsui.views.Home"
       maxWidth="-Infinity"
@@ -22,5 +23,15 @@
             <Label fx:id="title" styleClass="title" text="Home" />
          </children>
       </HBox>
+      <VBox styleClass="dashboard-section">
+         <Label styleClass="dashboard-section-title-text">TOTAL STUDENTS</Label>
+         <Label fx:id="countStudentsLabel"/>
+         <Button styleClass="button" onAction="#goToStudents">STUDENTS MANAGEMENT</Button>
+      </VBox>
+      <VBox styleClass="dashboard-section">
+         <Label styleClass="dashboard-section-title-text">TOTAL STUDENTS ASSIGNMENTS</Label>
+         <Label fx:id="countStudentsAssignmentsLabel"/>
+         <Button styleClass="button" onAction="#goToAssignments">ASSIGNMENTS MANAGEMENT</Button>
+      </VBox>
    </children>
 </VBox>

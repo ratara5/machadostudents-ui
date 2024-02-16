@@ -281,3 +281,28 @@
 .pdf-button:hover {
     -fx-background-color: primary-light;
 }*/
+
+.dashboard-section {
+    -fx-padding: 20 0 10 20;
+    -fx-border-color: primary;
+    -fx-border-width: 2;
+    -fx-border-insets: 2;
+    -fx-spacing: 10;
+}
+
+.dashboard-section-title-text {
+    -fx-font-weight: bold;
+    -fx-font-size: 20;
+}
+
+.dashboard-section > .button{
+    -fx-background-color: transparent;
+    -fx-text-fill: primary;
+    -fx-border-style: solid;
+    -fx-border-color: secondary;
+}
+
+.dashboard-section > .button:hover, .button:focused{
+    -fx-background-color : primary;
+    -fx-text-fill: secondary-light;
+}

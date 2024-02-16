@@ -64,7 +64,7 @@ public class Assignments
     @FXML
     private VBox genPdfButton;
     @FXML
-    private VBox genAssButton;
+    private VBox genAssiButton;
 
 
 
@@ -108,7 +108,7 @@ public class Assignments
 
         Tooltip tooltip3 = new Tooltip("Generate Pdf Assignments");
         tooltip3.setFont(new Font("Arial", 16));
-        Tooltip.install(genAssButton, tooltip3);
+        Tooltip.install(genAssiButton, tooltip3);
 
     }
 
