@@ -5,6 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.machado.machadostudentsclient.WebClientMachado;
 import org.machado.machadostudentsclient.entity.Assignment;
@@ -56,10 +59,19 @@ public class Assignments
     private TextField name;
     @FXML
     private TableView<Assignment> assignmentTable;
+    @FXML
+    private VBox addButton;
+    @FXML
+    private VBox genPdfButton;
+    @FXML
+    private VBox genAssButton;
+
+
 
     private Assignments controller;
     @Autowired
     private WebClientMachado webClientMachado;
+
 
     @FXML
     public void initialize() throws IOException { // throws IOException
@@ -85,6 +97,18 @@ public class Assignments
         });
 
         assignmentTable.setContextMenu(new ContextMenu(edit));
+
+        Tooltip tooltip1 = new Tooltip("Add new Assignment");
+        tooltip1.setFont(new Font("Arial", 16));
+        Tooltip.install(addButton, tooltip1);
+
+        Tooltip tooltip2 = new Tooltip("Generate Pdf Program");
+        tooltip2.setFont(new Font("Arial", 16));
+        Tooltip.install(genPdfButton, tooltip2);
+
+        Tooltip tooltip3 = new Tooltip("Generate Pdf Assignments");
+        tooltip3.setFont(new Font("Arial", 16));
+        Tooltip.install(genAssButton, tooltip3);
 
     }
 
@@ -253,7 +277,7 @@ public class Assignments
 
             Dialog.DialogBuilder.builder()
                     .title("Select period")
-                    .message(String.format("Please, select initial and final dates"))
+                    .message(String.format("Please, select start and end dates"))
                     .build().show();
 
         } else {
@@ -353,7 +377,7 @@ public class Assignments
 
             Dialog.DialogBuilder.builder()
                     .title("Select period")
-                    .message(String.format("Please, select initial and final dates"))
+                    .message(String.format("Please, select start and end dates"))
                     .build().show();
 
         } else {
