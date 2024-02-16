@@ -258,3 +258,26 @@
     -fx-font-weight: bold;
     -fx-background-color: primary;
 }
+
+
+/*.pdf-bar {
+    -fx-spacing: 10;
+    -fx-padding: 20px;
+    -fx-border-insets: 20px;
+    -fx-background-insets: 20px;
+}
+
+.pdf-button {
+    -fx-background-color: primary;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-min-width: 120;
+    -fx-background-radius: 3em;
+    -fx-border-style: none;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.pdf-button:hover {
+    -fx-background-color: primary-light;
+}*/
