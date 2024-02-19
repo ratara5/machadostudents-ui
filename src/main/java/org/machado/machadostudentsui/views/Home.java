@@ -4,16 +4,23 @@ package org.machado.machadostudentsui.views;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import org.machado.machadostudentsclient.WebClientMachado;
 import org.machado.machadostudentsclient.entity.Rol;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
+import org.machado.machadostudentsui.MachadostudentsFxApplication;
+import org.machado.machadostudentsui.utils.Menu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -37,6 +44,7 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
     private Label countStudentsAssignmentsLabel;*/
     @FXML
     private VBox vBoxTest;
+
 
     @Autowired
     private WebClientMachado webClientMachado;
@@ -149,6 +157,26 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
             //if(button.isHover()){button.setStyle(cssButtonHover);}
             button.setOnMouseEntered(e->{button.setStyle(cssButtonHover);});
             button.setOnMouseExited(e->{button.setStyle(cssButton);});
+            button.setOnAction(e-> {
+                System.out.println("Click en " + button.getText());
+                try {
+                    button.getScene().getWindow().hide();
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("MainFrame.fxml")); //button.getText()
+                    loader.load();
+                    MainFrame mainFrame = loader.getController();
+                    if(Objects.equals(button.getText(), "STUDENTS")) {
+                        mainFrame.loadView(Menu.Student);
+                    } else if (Objects.equals(button.getText(), "STUDENTS ASSIGNMENTS")) {
+                        mainFrame.loadView(Menu.Assignment);
+                    }
+                    Parent p = loader.getRoot();
+                    Stage s = new Stage();
+                    s.setScene(new Scene(p));
+                    s.show();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            });
 
             vbox.getChildren().addAll(labelTitle, labelContent, button); //chart
             vbox.setStyle(cssVBox);

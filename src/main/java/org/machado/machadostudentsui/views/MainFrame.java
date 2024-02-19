@@ -14,7 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class MainFrame {
 
     @FXML
@@ -48,7 +50,7 @@ public class MainFrame {
         }
     }
 
-    private void loadView(Menu menu) {
+    public void loadView(Menu menu) {
         try {
 
             for(Node node : sideBar.getChildren()) {
