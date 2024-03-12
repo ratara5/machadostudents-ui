@@ -185,7 +185,13 @@ public class PdfAssignmentManager {
                         form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
                     }
                     //// Fill other fields in form
-                    form.getField("900_3_Text_SanSerif").setValue(assignment.getDate().toString()).setFontSize(FONT_SIZE);
+                    //form.getField("900_3_Text_SanSerif").setValue(assignment.getDate().toString()).setFontSize(FONT_SIZE);
+                    String yearNumber = assignment.getDate().toString().substring(0,4);
+                    String monthNumber = assignment.getDate().toString().substring(5,7);
+                    String dayNumber = assignment.getDate().toString().substring(8,10);
+
+                    String monthName = FormatUtils.monthOfNumber.getOrDefault(monthNumber, "Mes").substring(0,3);
+                    form.getField("900_3_Text_SanSerif").setValue( dayNumber + " de " + monthName + " de " + yearNumber).setFontSize(FONT_SIZE);
                     form.getField("900_4_Text_SanSerif").setValue(assignment.getName()).setFontSize(FONT_SIZE);
                     form.getField("900_5_CheckBox")
                             .setCheckType(PdfFormField.TYPE_CHECK)

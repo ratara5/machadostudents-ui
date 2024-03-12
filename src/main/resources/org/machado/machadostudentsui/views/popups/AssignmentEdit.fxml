@@ -101,9 +101,9 @@
                            <PropertyValueFactory property="studentId"/>
                         </cellValueFactory>
                      </TableColumn>
-                      <TableColumn text="Oldest Assignment">
+                      <TableColumn text="Newest Assignment">
                           <cellValueFactory>
-                              <PropertyValueFactory property="oldestAssignmentDate"/>
+                              <PropertyValueFactory property="newestAssignmentDate"/>
                           </cellValueFactory>
                       </TableColumn>
                      <TableColumn text="Name">

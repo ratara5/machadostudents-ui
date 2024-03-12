@@ -2,12 +2,26 @@ package org.machado.machadostudentsui.utils;
 
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class FormatUtils {
+
+    public static final HashMap <String, String> monthOfNumber = new HashMap<>();
+
+    static {
+        monthOfNumber.put("01", "Enero");
+        monthOfNumber.put("02", "Febrero");
+        monthOfNumber.put("03", "Marzo");
+        monthOfNumber.put("04", "Abril");
+        monthOfNumber.put("05", "Mayo");
+        monthOfNumber.put("06", "Junio");
+        monthOfNumber.put("07", "Julio");
+        monthOfNumber.put("08","Agosto");
+        monthOfNumber.put("09", "Septiembre");
+        monthOfNumber.put("10", "Octubre");
+        monthOfNumber.put("11", "Noviembre");
+        monthOfNumber.put("12", "Diciembre");
+    }
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 
