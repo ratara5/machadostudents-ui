@@ -68,13 +68,13 @@ public class PdfAssignmentManager {
                 for (String section : groupedData.get(date).keySet()) {
                     Paragraph pS = new Paragraph("Sección: " + section);
                     switch(i){
-                        case 0:
+                        case 1: //0. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
                             pS.setFontColor(WebColors.getRGBColor("86BFCA"),1);
                             break;
-                        case 1:
+                        case 2: //1. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
                             pS.setFontColor(WebColors.getRGBColor("#BA9552"),1);
                             break;
-                        case 2:
+                        case 3: //2. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
                             pS.setFontColor(WebColors.getRGBColor("#D27674"),1);
                             break;
                     }
