@@ -158,7 +158,7 @@ public class AssignmentEdit {
                     Student student = listStudentsAssignment.get(i).getStudent();
                     if (Objects.equals(studentsAssignment.getRolStudent(), label.getUserData())) {
                         label.setId(studentsAssignment.getStudentId() + "");
-                        label.setText(student.getName());
+                        label.setText(student.getName() + " " + student.getLastName());
                     }
                 }
             }
@@ -357,7 +357,7 @@ public class AssignmentEdit {
         ClipboardContent content = new ClipboardContent();
 
         Student studentItem = studentForAssignmentTable.getSelectionModel().getSelectedItem();
-        content.putString(studentItem.getName());
+        content.putString(studentItem.getName() + " " + studentItem.getLastName());
         content.put(DataItem.DATA_FORMAT, Integer.toString(studentItem.getStudentId()));
 
         draggedStudentId = studentItem.getStudentId();

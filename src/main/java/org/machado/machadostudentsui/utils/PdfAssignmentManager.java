@@ -154,10 +154,13 @@ public class PdfAssignmentManager {
 
                     // Ever present, as "mainStudent" is the DEFAULT value in rol_student
                     String nameMainStudent = mainStudent.get().getName();
+                    String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
                     // Output path filled form
                     String outputPath = "../machadostudents-ui/assignments/"
-                            + nameMainStudent.replaceAll("\\s", "")
+                            + phoneMainStudent.replaceAll("\\s", "")
+                            //+ nameMainStudent.replaceAll("\\s", "")
+                            + "-"
                             + String.valueOf(i)
                             + ".pdf";
 

@@ -23,6 +23,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -49,7 +50,8 @@ import com.itextpdf.layout.property.TextAlignment;
 @Controller
 public class Assignments
         extends AbstractController
-        implements Consumer<List<Assignment>>, Supplier<List<Student>>{
+        implements Consumer<List<Assignment>>,
+        Supplier<List<Student>> {
 
     @FXML
     DatePicker datePickerStart;
@@ -292,7 +294,6 @@ public class Assignments
             /*generatePDF(groupedData);*/ //BEFORE with generatePDF method in this class
             PdfAssignmentManager.generatePDF(groupedData);
 
-
         }
 
     }
@@ -389,6 +390,22 @@ public class Assignments
             /*fillForms(assignments);*/ //BEFORE with fillForms method in this class
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
             PdfAssignmentManager.fillForms(assignments, listStudentsAssignment);
+            // Convert PDFs in Images
+            try {
+                String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/pdf_to_image.py";
+                String command = "python3.8 " + scriptPath;
+                Process process = Runtime.getRuntime().exec(command);
+
+                process.waitFor();
+                int outputCode = process.exitValue();
+                if (outputCode == 0) {
+                    System.out.println("Script executed succesfully");
+                } else {
+                    System.out.println("Error in script execution. output code: " + outputCode);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
 
