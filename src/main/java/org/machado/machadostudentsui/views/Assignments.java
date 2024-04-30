@@ -26,7 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -68,7 +71,7 @@ public class Assignments
     @FXML
     private VBox genAssiButton;
 
-
+    private String toCompareCount;
 
     private Assignments controller;
     @Autowired
@@ -396,6 +399,17 @@ public class Assignments
                 String command = "python3.8 " + scriptPath;
                 Process process = Runtime.getRuntime().exec(command);
 
+                // Capture output of process
+                InputStream inputStream = process.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                // Read line by line output of process
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    toCompareCount = line;
+                }
+
+
                 process.waitFor();
                 int outputCode = process.exitValue();
                 if (outputCode == 0) {
@@ -405,6 +419,11 @@ public class Assignments
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+
+            if(Objects.equals(toCompareCount, Integer.toString(assignments.size()))){
+                // Unblock SEND TO WHATSAPP Button
+                System.out.println("Unblock SEND TO WHATSAPP Button");
             }
 
         }
