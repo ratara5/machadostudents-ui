@@ -1,12 +1,13 @@
 package org.machado.machadostudentsui.views;
 
 
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.machado.machadostudentsclient.WebClientMachado;
@@ -16,14 +17,7 @@ import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.utils.PdfAssignmentManager;
 import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
-
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 
 import java.io.BufferedReader;
@@ -32,23 +26,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import com.itextpdf.forms.fields.PdfFormField;
-import com.itextpdf.kernel.colors.DeviceRgb;
-import com.itextpdf.kernel.pdf.*;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.property.UnitValue;
-import com.itextpdf.forms.PdfAcroForm;
-import com.itextpdf.kernel.colors.WebColors;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.property.TextAlignment;
 
 @Controller
 public class Assignments
@@ -70,6 +53,8 @@ public class Assignments
     private VBox genPdfButton;
     @FXML
     private VBox genAssiButton;
+    @FXML
+    private VBox sendWappButton;
 
     private String toCompareCount;
 
@@ -114,6 +99,9 @@ public class Assignments
         Tooltip tooltip3 = new Tooltip("Generate Pdf Assignments");
         tooltip3.setFont(new Font("Arial", 16));
         Tooltip.install(genAssiButton, tooltip3);
+
+        sendWappButton.setVisible(false);
+        sendWappButton.setManaged(false);
 
     }
 
@@ -424,10 +412,23 @@ public class Assignments
             if(Objects.equals(toCompareCount, Integer.toString(assignments.size()))){
                 // Unblock SEND TO WHATSAPP Button
                 System.out.println("Unblock SEND TO WHATSAPP Button");
+                //sendWappButton.getStyleClass().remove("send-button-invisible");
+                //sendWappButton.getStyleClass().add("send-button-visible");
+                sendWappButton.setVisible(true);
+                sendWappButton.setManaged(true);
+
+                Tooltip tooltip4 = new Tooltip("Send Img Assignments");
+                tooltip4.setFont(new Font("Arial", 16));
+                Tooltip.install(sendWappButton, tooltip4);
             }
 
         }
 
+    }
+
+    @FXML
+    private void sendAssignments() {
+        System.out.println("Sending Assignments...");
     }
 
     public static void show(Node element){

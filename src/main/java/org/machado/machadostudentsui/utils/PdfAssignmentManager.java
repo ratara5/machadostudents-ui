@@ -153,7 +153,7 @@ public class PdfAssignmentManager {
                             .findFirst();
 
                     // Ever present, as "mainStudent" is the DEFAULT value in rol_student
-                    String nameMainStudent = mainStudent.get().getName();
+                    String nameMainStudent = mainStudent.get().getName() + " " + mainStudent.get().getLastName() ;
                     String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
                     // Output path filled form
@@ -181,7 +181,7 @@ public class PdfAssignmentManager {
                             .findFirst();
                     if(assistantStudent.isPresent()) {
                         //Student assistantStudent = getStudentById(assistantStudentId.orElse(0));
-                        String nameAssistantStudent = assistantStudent.get().getName();
+                        String nameAssistantStudent = assistantStudent.get().getName() + " " + assistantStudent.get().getLastName() ;
                         form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
                     } else {
                         String nameAssistantStudent = "";
