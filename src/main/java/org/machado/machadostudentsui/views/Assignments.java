@@ -56,7 +56,9 @@ public class Assignments
     @FXML
     private VBox sendWappButton;
 
-    private String toCompareCount;
+    private String toCompareCountGenerated;
+    private String toCompareCountSent;
+
 
     private Assignments controller;
     @Autowired
@@ -394,7 +396,7 @@ public class Assignments
                 // Read line by line output of process
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    toCompareCount = line;
+                    toCompareCountGenerated = line;
                 }
 
 
@@ -409,7 +411,7 @@ public class Assignments
                 e.printStackTrace();
             }
 
-            if(Objects.equals(toCompareCount, Integer.toString(assignments.size()))){
+            if(Objects.equals(toCompareCountGenerated, Integer.toString(assignments.size()))){
                 // Unblock SEND TO WHATSAPP Button
                 System.out.println("Unblock SEND TO WHATSAPP Button");
                 //sendWappButton.getStyleClass().remove("send-button-invisible");
@@ -429,6 +431,39 @@ public class Assignments
     @FXML
     private void sendAssignments() {
         System.out.println("Sending Assignments...");
+
+        // Send Images Assignments
+        try {
+            String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/send_assignments/pywhat.py";
+            String command = "python3.8 " + scriptPath;
+            Process process = Runtime.getRuntime().exec(command);
+
+            // Capture output of process
+            InputStream inputStream = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            // Read line by line output of process
+            String line;
+            while ((line = reader.readLine()) != null) {
+                toCompareCountSent = line;
+            }
+
+            process.waitFor();
+            int outputCode = process.exitValue();
+            if (outputCode == 0) {
+                System.out.println("Script executed succesfully");
+            } else {
+                System.out.println("Error in script execution. output code: " + outputCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(Objects.equals(toCompareCountSent, toCompareCountGenerated)){
+            // Unblock SEND TO WHATSAPP Button
+            System.out.println("All assignments images have been sent");
+        }
+
     }
 
     public static void show(Node element){
