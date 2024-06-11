@@ -1,6 +1,9 @@
 package org.machado.machadostudentsui.views;
 
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,6 +22,7 @@ import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Mono;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,6 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @Controller
@@ -63,7 +68,7 @@ public class Assignments
     private Assignments controller;
     @Autowired
     private WebClientMachado webClientMachado;
-
+    private FilteredList<Assignment> filteredAssignments;
 
     @FXML
     public void initialize() throws IOException { // throws IOException
@@ -71,8 +76,22 @@ public class Assignments
         FXMLLoader loader = new FXMLLoader(Assignments.class.getResource("Assignment.fxml"));
         Assignments controller = (Assignments) loader.getController();
 
+        /* BEFORE
         assignmentTable.getItems().clear(); // Implements Consumer
         webClientMachado.assignmentsAll().subscribe(this); //Implement Consumer
+         */
+
+        /* AFTER: Show Assignments after current date */
+        Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
+        ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
+        filteredAssignments = new FilteredList<>(observableAssignmentList);
+
+         Predicate<Assignment> initialFilter = assignment -> {
+            return assignment.getDate().isAfter(LocalDate.now()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+        };
+        filteredAssignments.setPredicate(initialFilter);
+        assignmentTable.getItems().clear(); // Implements Consumer
+        assignmentTable.setItems(filteredAssignments);
 
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
@@ -109,19 +128,37 @@ public class Assignments
 
     @FXML
     private void search() {
+
+
+        /* BEFORE
         assignmentTable.getItems().clear();
         String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         List<Assignment> assignmentsBetweenDates = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
         assignmentTable.getItems().addAll(assignmentsBetweenDates);
+        */
+
+        /*AFTER*/
+        Predicate<Assignment> searchFilter = assignment -> {
+            return assignment.getDate().isAfter(datePickerStart.getValue()) &&
+                    assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+        };
+        filteredAssignments.setPredicate(searchFilter);
+        assignmentTable.setItems(filteredAssignments);
+
+        sendWappButton.setVisible(false);
+        sendWappButton.setManaged(false);
     }
 
     @FXML
     private void clear() {
         datePickerStart.setValue(null);
         datePickerEnd.setValue(null);
-        name.clear();
+        //name.clear();
         assignmentTable.getItems().clear();
+
+        sendWappButton.setVisible(false);
+        sendWappButton.setManaged(false);
     }
 
     //Assignments will be loaded in Server when SpringbootApplication will be running
@@ -463,6 +500,9 @@ public class Assignments
             // Unblock SEND TO WHATSAPP Button
             System.out.println("All assignments images have been sent");
         }
+
+        sendWappButton.setVisible(false);
+        sendWappButton.setManaged(false);
 
     }
 
