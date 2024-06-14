@@ -1,27 +1,13 @@
 package org.machado.machadostudentsui.views.popups;
 
 
-import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
-import javafx.scene.Parent;
-import org.machado.machadostudentsclient.WebClientMachado;
-import org.machado.machadostudentsclient.entity.*;
-import org.machado.machadostudentsui.utils.FormatUtils;
-import org.machado.machadostudentsui.utils.Menu;
-import org.machado.machadostudentsui.views.Assignments;
-import org.machado.machadostudentsui.views.MainFrame;
-import org.machado.machadostudentsui.views.common.Dialog;
-
-import jakarta.annotation.PostConstruct;
-
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -31,13 +17,17 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Duration;
+import org.machado.machadostudentsclient.entity.Assignment;
+import org.machado.machadostudentsclient.entity.Student;
+import org.machado.machadostudentsclient.entity.StudentsAssignment;
+import org.machado.machadostudentsui.utils.FormatUtils;
+import org.machado.machadostudentsui.views.Assignments;
+import org.machado.machadostudentsui.views.common.Dialog;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -64,6 +54,10 @@ public class AssignmentEdit {
     private Slider rolSlider; //could be ageSlider
     @FXML
     private Label sliderValueLabel;
+    @FXML
+    private CheckBox checkbox;
+    @FXML
+    private Label sourceLabel;
 
     private Assignment assignment;
     private StudentsAssignment studentsAssignment;
@@ -78,6 +72,8 @@ public class AssignmentEdit {
     private LinkedList<Integer> candidatesIdsToDeleteList = new LinkedList<>();
     private boolean flagCandidatesToDeleteFromStudent = false;
     private boolean flagCandidatesToDeleteFromAssistant = false;
+    public static boolean noMeetMark = false;
+    public static LocalDate week;
 
     public static void edit(Assignment assignment,
                             Consumer<StudentsAssignment> saveHandler,
@@ -454,11 +450,23 @@ public class AssignmentEdit {
                         deleteHandler.accept(Integer.toString(id),
                                 Integer.toString(assignment.getAssignmentId()));
                     }
+                    // En caso de que la semana sea sin reunión
+                    if(checkbox.isSelected()){
+                        /*noMeetMark = true;
+                        week = assignment.getDate();*/
+                        assignment.setWeekWithoutMeet(true);
 
+                    } /*else {
+                        noMeetMark = false;
+                        week = null;
+                    }
+                    System.out.println("Valor de noMeetMark: " + noMeetMark + " para la semana " + week);*/
                     close();
 
                 })
                 .build().show();
+
+
                 //loadView(Menu.Assignment);
 
     }
@@ -493,6 +501,20 @@ public class AssignmentEdit {
         filteredStudents.setPredicate(student -> {
             return true;
         });
+    }
+
+    @FXML
+    private void handleCheckbox() {
+        if (checkbox.isSelected()) {
+            deleteFromLabel1();
+            deleteFromLabel2();
+            studentForAssignmentTable.setVisible(false);
+            studentNameLabel.setText(sourceLabel.getText());
+        }
+        else {
+            studentForAssignmentTable.setVisible(true);
+            studentNameLabel.setText("");
+        }
     }
 
 }

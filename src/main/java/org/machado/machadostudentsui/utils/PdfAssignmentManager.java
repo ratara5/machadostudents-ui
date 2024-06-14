@@ -57,6 +57,7 @@ public class PdfAssignmentManager {
             document.setFontSize(FONT_SIZE);
 
             // Iterate into dates
+            outerLoop:
             for (LocalDate date : groupedData.keySet()) {
                 Paragraph p=new Paragraph("Fecha: " + date);
                 p.setFontSize(12f);
@@ -66,20 +67,42 @@ public class PdfAssignmentManager {
                 // Iterarate into sections inside each date
                 int i=0;
                 for (String section : groupedData.get(date).keySet()) {
-                    Paragraph pS = new Paragraph("Sección: " + section);
-                    switch(i){
-                        case 1: //0. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("86BFCA"),1);
-                            break;
-                        case 2: //1. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("#BA9552"),1);
-                            break;
-                        case 3: //2. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("#D27674"),1);
-                            break;
-                    }
-                    document.add(pS);
-                    i++;
+
+                    //document.add(pS);
+
+                    // Mapa principal que contendrá los estilos para diferentes valores de i
+                    Map<Integer, Map<String, String>> styleMap = new HashMap<>();
+
+                    // Estilos para i=0 y i=4
+                    Map<String, String> style0 = new HashMap<>();
+                    style0.put("fontColor", "#000000");      // Negro
+                    style0.put("bgColor", "#90B1DD");        // Azul claro
+                    styleMap.put(0, style0);
+                    styleMap.put(4, style0);  // Mismo estilo para i=4
+
+                    // Estilos para i=1
+                    Map<String, String> style1 = new HashMap<>();
+                    style1.put("fontColor", "#7ABCC6");      // Turquesa más claro
+                    style1.put("bgColor", "#2B6C75");        // Turquesa
+                    styleMap.put(1, style1);
+
+                    // Estilos para i=2
+                    Map<String, String> style2 = new HashMap<>();
+                    style2.put("fontColor", "#FFCA64");      // Mostaza más claro
+                    style2.put("bgColor", "#936924");        // Mostaza oscuro
+                    styleMap.put(2, style2);
+
+                    // Estilos para i=3
+                    Map<String, String> style3 = new HashMap<>();
+                    style3.put("fontColor", "#CD7473");      // Terracota más claro
+                    style3.put("bgColor", "91312D");        // Terracota
+                    styleMap.put(3, style3);
+
+
+                    // En caso de que la semana sea sin reunión
+                    /*boolean noMeetMark = org.machado.machadostudentsui.views.popups.AssignmentEdit.noMeetMark;
+                    if(noMeetMark) continue;*/
+
 
                     // Create table
                     Table table = new Table(UnitValue.createPercentArray(new float[]{50, 25, 25}));
@@ -88,8 +111,35 @@ public class PdfAssignmentManager {
                     // Setup columns width
                     table.setWidth(UnitValue.createPercentValue(100));
 
+                    // Section name
+                    Paragraph pS = new Paragraph(section);
+                    /*switch(i){
+                        case 1: //0. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
+                            pS.setFontColor(WebColors.getRGBColor("86BFCA"),1); //"86BFCA"
+                            break;
+                        case 2: //1. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
+                            pS.setFontColor(WebColors.getRGBColor("#BA9552"),1); //"#BA9552"
+                            break;
+                        case 3: //2. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
+                            pS.setFontColor(WebColors.getRGBColor("#D27674"),1); //"#D27674"
+                            break;
+                    }*/
+
+                    // Cell with section name. Excepts PRESIDENCIA & ORACIÓN FINAL
+                    if(i != 0 && i != 4) {
+                        Cell cell1 = new Cell(1, 3);
+                        //cell1.setWidth(UnitValue.createPointValue(200));
+                        cell1.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                        //cell1.setBorderLeft(new SolidBorder()); //ColorConstants.WHITE, 1
+                        pS.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("fontColor")));
+                        cell1.add(pS);
+                        table.addCell(cell1);
+                    }
+
+
+
                     // Setup headers columns
-                    String[] encs = {"Intervención", "Encargado", "Ayudante"};
+                    /*String[] encs = {"Intervención", "Encargado", "Ayudante"};
                     for (String e:encs) {
                         Cell cell = new Cell();
                         //cell.setBorder(Border.NO_BORDER);
@@ -99,26 +149,90 @@ public class PdfAssignmentManager {
                         pI.setBold();
                         cell.add(pI);
                         table.addCell(cell);
-                    }
+                    }*/
 
                     // Iterate upon records inside each date and section
                     for (Assignment assignment : groupedData.get(date).get(section)) {
-                        // Add row to table
-                        table.addCell(assignment.getName());
-                        if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            table.addCell(assignment.getMainStudentName()); //table.addCell("Encargado: " + String.join(", ", assignment.getMainStudentName())); //substring(0,15)
-                        } else {
-                            table.addCell("Pendiente");
+                        if(assignment.isWeekWithoutMeet()) {
+                            Cell cellWithoutMeet = new Cell(1, 3);
+                            cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
+                            table.addCell(cellWithoutMeet);
+                            //table.addCell("Semana sin reunión");
+                            //table.addCell("Semana sin reunión");
+                            document.add(table);
+                            continue outerLoop;
                         }
-                        if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            table.addCell(assignment.getAssistantStudentName());
+                        // Add row to table
+                        Cell cellAssignmentName = new Cell();
+                        //cell1.setWidth(UnitValue.createPointValue(200));
+                        Paragraph pA = new Paragraph(assignment.getName());
+
+                        if(i != 0 && i != 4) {
+                            pA.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+
                         } else {
-                            table.addCell("                    "); //table.addCell("No Requerido o Pendiente");
+                            cellAssignmentName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                        }
+                        cellAssignmentName.add(pA);
+                        table.addCell(cellAssignmentName);
+                        //table.addCell(assignment.getName());
+                        /*AFTER: String mainName = assignment.getMainStudentName();
+
+                        if (null == assignment.getAssistantStudentName() || assignment.getAssistantStudentName().isEmpty()) {
+
+                            Cell cellMain = new Cell(1, 2);
+                            cellMain.add(new Paragraph(mainName));
+                            table.addCell(cellMain);
+
+                        }
+                        else {
+
+                            String assistantName = assignment.getAssistantStudentName();
+                            Cell cellMain = new Cell();
+                            cellMain.add(new Paragraph(mainName));
+                            table.addCell(cellMain);
+
+                            Cell cellAssistant = new Cell();
+                            cellAssistant.add(new Paragraph(assistantName));
+                            table.addCell(cellMain);
+
+                        }*/
+
+                        /*BEFORE*/
+                        Cell cellMainName = new Cell();
+                        Cell cellAssistantName = new Cell();
+                        if(i == 0 || i == 4) {
+                            cellMainName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                            cellAssistantName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                        }
+                        if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
+                            Paragraph pN = new Paragraph(assignment.getMainStudentName());
+                            cellMainName.add(pN);
+
+
+                        }
+                        else {
+                            cellMainName.add(new Paragraph("Pendiente"));
+                        }
+                        table.addCell(cellMainName);
+
+                        if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
+                            Paragraph pH = new Paragraph(assignment.getAssistantStudentName());
+                            cellAssistantName.add(pH);
+
+                            table.addCell(pH);
+
+                        } else {
+                            cellAssistantName.add(new Paragraph("                    "));
+
+                            table.addCell(cellAssistantName);
                         }
                     }
 
                     // Add table to document
                     document.add(table);
+
+                    i++;
 
                 }
                 // Separation between dates

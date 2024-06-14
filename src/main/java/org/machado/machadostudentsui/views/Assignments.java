@@ -314,12 +314,22 @@ public class Assignments
 
         } else {
 
+            /*BEFORE
             String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
+            */
+            /*AFTER*/
+            Predicate<Assignment> searchFilter = assignment -> {
+                return assignment.getDate().isAfter(datePickerStart.getValue()) &&
+                        assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+            };
+            filteredAssignments.setPredicate(searchFilter);
+            assignmentTable.setItems(filteredAssignments);
 
-            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(assignments);
+
+            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(filteredAssignments);
             // Generate PDF
             /*generatePDF(groupedData);*/ //BEFORE with generatePDF method in this class
             PdfAssignmentManager.generatePDF(groupedData);
