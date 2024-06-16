@@ -8,6 +8,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -24,6 +25,36 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class PdfAssignmentManager {
+
+    /**
+     * Método para convertir un color en formato hexadecimal a un array de enteros RGB.
+     * @param hexColor Color en formato hexadecimal (con o sin '#').
+     * @return Array de enteros correspondiente a los componentes RGB.
+     */
+    public static int[] hexToRgb(String hexColor) {
+        if (hexColor.startsWith("#")) {
+            hexColor = hexColor.substring(1);
+        }
+        int red = Integer.valueOf(hexColor.substring(0, 2), 16);
+        int green = Integer.valueOf(hexColor.substring(2, 4), 16);
+        int blue = Integer.valueOf(hexColor.substring(4, 6), 16);
+        return new int[]{red, green, blue};
+    }
+
+    /**
+     * Método para convertir un string de un array de enteros a un array de enteros.
+     * @param rgbString String en formato "[r, g, b]".
+     * @return Array de enteros correspondiente a los componentes RGB.
+     */
+    public static int[] stringToRgbArray(String rgbString) {
+        rgbString = rgbString.replaceAll("\\[|\\]|\\s", "");  // Eliminar corchetes y espacios
+        String[] rgbStrArray = rgbString.split(",");          // Separar por comas
+        int[] rgbArray = new int[rgbStrArray.length];
+        for (int i = 0; i < rgbStrArray.length; i++) {
+            rgbArray[i] = Integer.parseInt(rgbStrArray[i]);   // Convertir a enteros
+        }
+        return rgbArray;
+    }
 
     private Consumer<Student> getOneHandler;
     public static Map<LocalDate, Map<String, List<Assignment>>> groupData(List<Assignment> assignments) {
@@ -98,6 +129,18 @@ public class PdfAssignmentManager {
                     style3.put("bgColor", "91312D");        // Terracota
                     styleMap.put(3, style3);
 
+                    // Añadir la clave "borderColor" con los valores RGB correspondientes al "bgColor"
+                    for (Map.Entry<Integer, Map<String, String>> entry : styleMap.entrySet()) {
+                        Map<String, String> styles = entry.getValue();
+                        String bgColor = styles.get("bgColor");
+                        if (bgColor != null) {
+                            int[] rgb = hexToRgb(bgColor);
+                            styles.put("borderColor", Arrays.toString(rgb));
+                        }
+                    }
+
+
+
 
                     // En caso de que la semana sea sin reunión
                     /*boolean noMeetMark = org.machado.machadostudentsui.views.popups.AssignmentEdit.noMeetMark;
@@ -124,6 +167,10 @@ public class PdfAssignmentManager {
                             pS.setFontColor(WebColors.getRGBColor("#D27674"),1); //"#D27674"
                             break;
                     }*/
+                    String borderColorStr = styleMap.get(i).get("borderColor");
+                    int[] borderColorRgb = stringToRgbArray(borderColorStr);
+                    DeviceRgb borderColor = new DeviceRgb(borderColorRgb[0], borderColorRgb[1], borderColorRgb[2]);
+                    SolidBorder border = new SolidBorder(borderColor, 1);
 
                     // Cell with section name. Excepts PRESIDENCIA & ORACIÓN FINAL
                     if(i != 0 && i != 4) {
@@ -132,8 +179,13 @@ public class PdfAssignmentManager {
                         cell1.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
                         //cell1.setBorderLeft(new SolidBorder()); //ColorConstants.WHITE, 1
                         pS.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("fontColor")));
+
+
+
+
                         cell1.add(pS);
                         table.addCell(cell1);
+                        table.setBorder(border);
                     }
 
 
@@ -174,6 +226,8 @@ public class PdfAssignmentManager {
                             cellAssignmentName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
                         }
                         cellAssignmentName.add(pA);
+                        cellAssignmentName.setBorder(border);
+
                         table.addCell(cellAssignmentName);
                         //table.addCell(assignment.getName());
                         /*AFTER: String mainName = assignment.getMainStudentName();
@@ -214,19 +268,25 @@ public class PdfAssignmentManager {
                         else {
                             cellMainName.add(new Paragraph("Pendiente"));
                         }
+                        cellMainName.setBorder(border);
                         table.addCell(cellMainName);
 
                         if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
                             Paragraph pH = new Paragraph(assignment.getAssistantStudentName());
                             cellAssistantName.add(pH);
 
+                            cellAssistantName.setBorder(border);
                             table.addCell(pH);
+
 
                         } else {
                             cellAssistantName.add(new Paragraph("                    "));
 
+                            cellAssistantName.setBorder(border);
                             table.addCell(cellAssistantName);
+
                         }
+
                     }
 
                     // Add table to document
@@ -253,7 +313,7 @@ public class PdfAssignmentManager {
                 String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
 
                 // Assignments without students will not be generated
-                if(assignment.getMainStudentName() != null) {
+                if(!assignment.isWeekWithoutMeet() && assignment.getMainStudentName() != null) {
 
                     //filteredListStudentsAssignment contains two elements max
                     List<StudentsAssignment> filteredListStudentsAssignment = listStudentsAssignment

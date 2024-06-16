@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +36,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Controller
 public class Assignments
@@ -92,6 +92,7 @@ public class Assignments
         filteredAssignments.setPredicate(initialFilter);
         assignmentTable.getItems().clear(); // Implements Consumer
         assignmentTable.setItems(filteredAssignments);
+        
 
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
@@ -423,13 +424,38 @@ public class Assignments
 
         } else {
 
-            String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            /*String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
             List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
-            /*fillForms(assignments);*/ //BEFORE with fillForms method in this class
+            //fillForms(assignments); //BEFORE with fillForms method in this class
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
-            PdfAssignmentManager.fillForms(assignments, listStudentsAssignment);
+            PdfAssignmentManager.fillForms(assignments, listStudentsAssignment);*/
+
+            // Agrupar los objetos por fecha
+            Map<LocalDate, List<Assignment>> groupedByDate = filteredAssignments.stream()
+                    .collect(Collectors.groupingBy(Assignment::getDate));
+
+            // Actualizar los objetos según la condición: Si una asignación está marcada como fecha sin reunión, la demás asignaciones de dicha fecha también estén marcadas como fecha sin reunión
+            groupedByDate.forEach((date, assignments) -> {
+                boolean anyMarked = assignments.stream().anyMatch(Assignment::isWeekWithoutMeet);
+                if (anyMarked) {
+                    assignments.forEach(assignment -> assignment.setWeekWithoutMeet(true));
+                }
+            });
+
+            /*AFTER*/
+            Predicate<Assignment> searchFilter = assignment -> {
+                return assignment.getDate().isAfter(datePickerStart.getValue()) &&
+                        assignment.getDate().isBefore(datePickerEnd.getValue()) &&
+                        !assignment.isWeekWithoutMeet(); //week without meeting
+            };
+            filteredAssignments.setPredicate(searchFilter);
+            List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
+            //assignmentTable.setItems(filteredAssignments);
+            PdfAssignmentManager.fillForms(filteredAssignments, listStudentsAssignment);
+
+
             // Convert PDFs in Images
             try {
                 String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/pdf_to_image.py";
@@ -458,7 +484,12 @@ public class Assignments
                 e.printStackTrace();
             }
 
-            if(Objects.equals(toCompareCountGenerated, Integer.toString(assignments.size()))){
+            //Exclude weeks without meet
+            /*int count = (int) assignments.stream()
+                    .filter(obj -> !obj.isWeekWithoutMeet())
+                    .count();*/
+
+            if(Objects.equals(toCompareCountGenerated, Integer.toString(filteredAssignments.size()))){ //assignments.size()
                 // Unblock SEND TO WHATSAPP Button
                 System.out.println("Unblock SEND TO WHATSAPP Button");
                 //sendWappButton.getStyleClass().remove("send-button-invisible");
