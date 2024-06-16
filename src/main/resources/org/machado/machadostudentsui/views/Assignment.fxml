@@ -93,6 +93,11 @@
                             <PropertyValueFactory property="assignmentId"/>
                         </cellValueFactory>
                     </TableColumn>-->
+                    <TableColumn text="Reading">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="reading"/>
+                        </cellValueFactory>
+                    </TableColumn>
                     <TableColumn text="Section">
                         <cellValueFactory>
                             <PropertyValueFactory property="section"/>
