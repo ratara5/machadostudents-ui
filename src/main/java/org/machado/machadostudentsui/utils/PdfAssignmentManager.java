@@ -19,10 +19,13 @@ import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static org.machado.machadostudentsui.utils.FormatUtils.meses;
 
 public class PdfAssignmentManager {
 
@@ -76,6 +79,18 @@ public class PdfAssignmentManager {
 
     }
 
+    public static <K, V> K obtenerPrimeraClave(Map<K, V> map) {
+        // Obtener un iterator sobre el conjunto de claves
+        Iterator<K> iterator = map.keySet().iterator();
+
+        // Verificar si hay una primera clave y retornarla
+        if (iterator.hasNext()) {
+            return iterator.next();
+        } else {
+            return null; // El mapa está vacío
+        }
+    }
+
     public static void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData) {
 
         float FONT_SIZE = 8f;
@@ -85,14 +100,35 @@ public class PdfAssignmentManager {
              PdfDocument pdfDoc = new PdfDocument(pdfWriter);
              Document document = new Document(pdfDoc)) {
 
+            document.setCharacterSpacing(0.6f);
+
+            LocalDate primeraClave = obtenerPrimeraClave(groupedData);
+            String primerMes = primeraClave.getMonth().toString();
+            String mes = primerMes.substring(0, 1).toUpperCase() + primerMes.substring(1).toLowerCase();
+
+            Paragraph pHead=new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + meses.getOrDefault(mes, "Mes no encontrado").toUpperCase() + " 2024");
+            pHead.setFontSize(14f);
+            pHead.setTextAlignment(TextAlignment.CENTER);
+            pHead.setBold();
+            document.add(pHead);
+
             document.setFontSize(FONT_SIZE);
 
             // Iterate into dates
             outerLoop:
             for (LocalDate date : groupedData.keySet()) {
-                Paragraph p=new Paragraph("Fecha: " + date);
-                p.setFontSize(12f);
-                p.setTextAlignment(TextAlignment.CENTER);
+
+                Class<?> myAssignment = groupedData.get(date).get("TESOROS DE LA BIBLIA").get(0).getClass();
+                java.lang.reflect.Method metodo = myAssignment.getMethod("getReading");
+                Object retorno = metodo.invoke(groupedData.get(date).get("TESOROS DE LA BIBLIA").get(0));
+                String reading = (String) retorno;
+
+
+                Paragraph p=new Paragraph("MARTES " + date.getDayOfMonth() + " / " + reading);
+                p.setFontSize(11f);
+                p.setFontColor(WebColors.getRGBColor("#5A5D5E"),1);
+                p.setBold();
+                p.setTextAlignment(TextAlignment.LEFT);
                 document.add(p);
 
                 // Iterarate into sections inside each date
@@ -179,7 +215,7 @@ public class PdfAssignmentManager {
                         cell1.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
                         //cell1.setBorderLeft(new SolidBorder()); //ColorConstants.WHITE, 1
                         pS.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("fontColor")));
-
+                        pS.setBold();
 
 
 
@@ -218,6 +254,7 @@ public class PdfAssignmentManager {
                         Cell cellAssignmentName = new Cell();
                         //cell1.setWidth(UnitValue.createPointValue(200));
                         Paragraph pA = new Paragraph(assignment.getName());
+                        pA.setBold();
 
                         if(i != 0 && i != 4) {
                             pA.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
@@ -261,6 +298,7 @@ public class PdfAssignmentManager {
                         }
                         if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
                             Paragraph pN = new Paragraph(assignment.getMainStudentName());
+                            pN.setCharacterSpacing(0.4f);
                             cellMainName.add(pN);
 
 
@@ -273,6 +311,7 @@ public class PdfAssignmentManager {
 
                         if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
                             Paragraph pH = new Paragraph(assignment.getAssistantStudentName());
+                            pH.setCharacterSpacing(0.4f);
                             cellAssistantName.add(pH);
 
                             cellAssistantName.setBorder(border);
@@ -300,6 +339,12 @@ public class PdfAssignmentManager {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
     }

@@ -23,6 +23,23 @@ public class FormatUtils {
         monthOfNumber.put("12", "Diciembre");
     }
 
+    public static final HashMap <String, String> meses = new HashMap<>();
+
+    static {
+        meses.put("January", "Enero");
+        meses.put("February", "Febrero");
+        meses.put("March", "Marzo");
+        meses.put("April", "Abril");
+        meses.put("May", "Mayo");
+        meses.put("June", "Junio");
+        meses.put("July", "Julio");
+        meses.put("August", "Agosto");
+        meses.put("September", "Septiembre");
+        meses.put("October", "Octubre");
+        meses.put("November", "Noviembre");
+        meses.put("December", "Diciembre");
+    }
+
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 
     public static String formatNumber(int data) {
