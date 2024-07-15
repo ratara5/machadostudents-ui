@@ -86,7 +86,7 @@
             <padding>
                 <Insets top="10"/>
             </padding>
-            <TableView fx:id="assignmentTable" prefHeight="800.0" prefWidth="1000.0">
+            <TableView fx:id="assignmentTable" prefHeight="550.0" prefWidth="1000.0">
                 <columns>
                     <!--<TableColumn text="Entity ID">
                             <cellValueFactory>
