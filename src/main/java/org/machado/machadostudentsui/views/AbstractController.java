@@ -12,7 +12,6 @@ public abstract class AbstractController {
 
     public void setTitle(Menu menu) {
         this.title.setText(menu.getTitle());
-        //this.title.setText("Products");
     }
 
 }

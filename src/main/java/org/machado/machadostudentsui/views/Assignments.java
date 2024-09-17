@@ -50,8 +50,6 @@ public class Assignments
     @FXML
     DatePicker datePickerEnd;
     @FXML
-    private TextField name;
-    @FXML
     private TableView<Assignment> assignmentTable;
     @FXML
     private VBox addButton;
@@ -74,71 +72,68 @@ public class Assignments
     private Assignments controller;
     @Autowired
     private WebClientMachado webClientMachado;
-    private FilteredList<Assignment> filteredAssignments;
 
+    private FilteredList<Assignment> filteredAssignments;
     private SortedList<Assignment> sortedAssignments;
 
-    @FXML
-    public void initialize() throws IOException { // throws IOException
+    public SortedList<Assignment> sorting(FilteredList<Assignment> filteredAssignments) {
 
-        FXMLLoader loader = new FXMLLoader(Assignments.class.getResource("Assignment.fxml"));
-        Assignments controller = (Assignments) loader.getController();
-
-        /* BEFORE
-        assignmentTable.getItems().clear(); // Implements Consumer
-        webClientMachado.assignmentsAll().subscribe(this); //Implement Consumer
-         */
-
-        /* AFTER: Show Assignments for the next month */
-        Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
-        ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
-        filteredAssignments = new FilteredList<>(observableAssignmentList);
-
-         Predicate<Assignment> initialFilter = assignment -> {
-            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
-        };
-        filteredAssignments.setPredicate(initialFilter);
-
-        sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
+        sortedAssignments = new SortedList<>(filteredAssignments, (Assignment o1, Assignment o2) -> {
             String name1 = o1.getName();
             String name2 = o2.getName();
 
-            // Prioridad "P" al principio
+            // "P" at start priority
             if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
             if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
 
-            // Prioridad "O" al final
+            // "O" at end priority
             if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
             if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
 
-            // Ordenar números en orden ascendente
+            // Order number ascending
             boolean name1IsNumber = Character.isDigit(name1.charAt(0));
             boolean name2IsNumber = Character.isDigit(name2.charAt(0));
 
             if (name1IsNumber && !name2IsNumber) return -1;
             if (!name1IsNumber && name2IsNumber) return 1;
 
-            // Si ambos o ninguno es número, orden alfabético
+            // Both or none is number, alphabetic order
             return name1.compareTo(name2);
         });
 
         sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
+        return sortedAssignments;
 
-        assignmentTable.getItems().clear(); // Implements Consumer
-        assignmentTable.setItems(sortedAssignments); //sortedAssignments
+    }
 
-        //Order by Date Column
+
+    @FXML
+    public void initialize() throws IOException {
+
+        FXMLLoader loader = new FXMLLoader(Assignments.class.getResource("Assignment.fxml"));
+        Assignments controller = (Assignments) loader.getController();
+
+        // Show Assignments for the day 1 of the next month
+        Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
+        ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
+
+        filteredAssignments = new FilteredList<>(observableAssignmentList);
+        Predicate<Assignment> initialFilter = assignment -> {
+            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+        };
+        filteredAssignments.setPredicate(initialFilter);
+
+        sortedAssignments = this.sorting(filteredAssignments);
+
+        assignmentTable.getItems().clear();
+        assignmentTable.setItems(sortedAssignments);
+
+        // Order by Date Column
         dateColumn.setSortable(true);
         assignmentTable.getSortOrder().add(dateColumn);
         dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
 
-        //Order by AssignmentName Column //This causes pdf format will be incorrect
-        /*assignmentName.setSortable(true);
-        assignmentTable.getSortOrder().add(assignmentName);
-        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
-
-        assignmentTable.sort(); // Apply order*/
-        
+        assignmentTable.sort(); // Apply order
 
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
@@ -173,103 +168,75 @@ public class Assignments
 
     }
 
+
     @FXML
     private void search() {
 
-
-        /* BEFORE
-        assignmentTable.getItems().clear();
-        String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        List<Assignment> assignmentsBetweenDates = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
-        assignmentTable.getItems().addAll(assignmentsBetweenDates);
-        */
-
-        /*AFTER*/
         Predicate<Assignment> searchFilter = assignment -> {
             return assignment.getDate().isAfter(datePickerStart.getValue()) &&
                     assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
         filteredAssignments.setPredicate(searchFilter);
-        sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
-            String name1 = o1.getName();
-            String name2 = o2.getName();
-
-            // Prioridad "P" al principio
-            if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
-            if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
-
-            // Prioridad "O" al final
-            if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
-            if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
-
-            // Ordenar números en orden ascendente
-            boolean name1IsNumber = Character.isDigit(name1.charAt(0));
-            boolean name2IsNumber = Character.isDigit(name2.charAt(0));
-
-            if (name1IsNumber && !name2IsNumber) return -1;
-            if (!name1IsNumber && name2IsNumber) return 1;
-
-            // Si ambos o ninguno es número, orden alfabético
-            return name1.compareTo(name2);
-        });
 
         sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
+        sortedAssignments = this.sorting(filteredAssignments);
 
-        assignmentTable.setItems(sortedAssignments); //sortedAssignments
+        assignmentTable.setItems(sortedAssignments);
 
         //Order by Date Column
         dateColumn.setSortable(true);
         assignmentTable.getSortOrder().add(dateColumn);
         dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
 
-        //Order by AssignmentName Column //This causes pdf format will be incorrect
-        /*assignmentName.setSortable(true);
-        assignmentTable.getSortOrder().add(assignmentName);
-        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
-
-        assignmentTable.sort(); // Apply order*/
-
+        assignmentTable.sort(); // Apply order
 
         sendWappButton.setVisible(false);
         sendWappButton.setManaged(false);
+
     }
+
 
     @FXML
     private void clear() {
+
         datePickerStart.setValue(null);
         datePickerEnd.setValue(null);
-        //name.clear();
+
         assignmentTable.getItems().clear();
 
         sendWappButton.setVisible(false);
         sendWappButton.setManaged(false);
+
     }
 
-    //Assignments will be loaded in Server when SpringbootApplication will be running
+
+    // Assignments will be loaded in Server when SpringbootApplication will be running
     @FXML
     private void addNew() {
     }
 
+
     private void save(StudentsAssignment studentsAssignment) {
         webClientMachado.addStudentAssignment(studentsAssignment);
-        //initialize();
     }
+
 
     public void getDeleteStudentAssignmentConsumer(String studentId, String assignmentId) {
         webClientMachado.deleteStudentAssignment(studentId, assignmentId).subscribe();
     }
 
+
     private List<StudentsAssignment> getStudentsAssignmentByAssignment(int assignmentId) {
         List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsPerAssignment(assignmentId+"").block();
-        //initialize();
         return listStudentsAssignment;
     }
+
 
     @Override
     public void accept(List<Assignment> assignments) {
         assignmentTable.getItems().addAll(assignments);
     }
+
 
     @Override
     public List<Student> get() {
@@ -277,115 +244,12 @@ public class Assignments
         return studentsAllOrderedByOldestAssignment;
     }
 
+
     public Student getStudentById(int studentId) {
         Student studentById = webClientMachado.studentsFor(studentId+"").block();
         return studentById;
     }
 
-    // BEFORE: THis method in this class
-    /*private static Map<LocalDate, Map<String, List<Assignment>>> groupData(List<Assignment> assignments) {
-
-        Map<LocalDate, Map<String, List<Assignment>>> groupedData = new LinkedHashMap<>();
-        for (Assignment assignment : assignments) {
-            // Group by date
-            LocalDate date = assignment.getDate();
-            groupedData.putIfAbsent(date, new LinkedHashMap<>());
-
-            // Group by section in each date
-            String section = assignment.getSection();
-            groupedData.get(date).putIfAbsent(section, new ArrayList<>());
-
-            // Add record to list
-            groupedData.get(date).get(section).add(assignment);
-        }
-        return groupedData;
-
-    }*/
-
-    /*private static void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData) {
-
-        float FONT_SIZE = 8f;
-        float INTERLINE = 6f;
-
-        try (PdfWriter pdfWriter = new PdfWriter("../machadostudents-ui/output.pdf");
-             PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-             Document document = new Document(pdfDoc)) {
-
-            document.setFontSize(FONT_SIZE);
-
-            // Iterate into dates
-            for (LocalDate date : groupedData.keySet()) {
-                Paragraph p=new Paragraph("Fecha: " + date);
-                p.setFontSize(12f);
-                p.setTextAlignment(TextAlignment.CENTER);
-                document.add(p);
-
-                // Iterarate into sections inside each date
-                int i=0;
-                for (String section : groupedData.get(date).keySet()) {
-                    Paragraph pS = new Paragraph("Sección: " + section);
-                    switch(i){
-                        case 0:
-                            pS.setFontColor(WebColors.getRGBColor("86BFCA"),1);
-                            break;
-                        case 1:
-                            pS.setFontColor(WebColors.getRGBColor("#BA9552"),1);
-                            break;
-                        case 2:
-                            pS.setFontColor(WebColors.getRGBColor("#D27674"),1);
-                            break;
-                    }
-                    document.add(pS);
-                    i++;
-
-                    // Create table
-                    Table table = new Table(UnitValue.createPercentArray(new float[]{50, 25, 25}));
-                    //table.setBorder(Border.NO_BORDER);
-
-                    // Setup columns width
-                    table.setWidth(UnitValue.createPercentValue(100));
-
-                    // Setup headers columns
-                    String[] encs = {"Intervención", "Encargado", "Ayudante"};
-                    for (String e:encs) {
-                        Cell cell = new Cell();
-                        //cell.setBorder(Border.NO_BORDER);
-                        cell.setBackgroundColor(WebColors.getRGBColor("black"));
-                        Paragraph pI = new Paragraph(e);
-                        pI.setFontColor(WebColors.getRGBColor("white"),0);
-                        pI.setBold();
-                        cell.add(pI);
-                        table.addCell(cell);
-                    }
-
-                    // Iterate upon records inside each date and section
-                    for (Assignment assignment : groupedData.get(date).get(section)) {
-                        // Add row to table
-                        table.addCell(assignment.getName());
-                        if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            table.addCell(assignment.getMainStudentName()); //table.addCell("Encargado: " + String.join(", ", assignment.getMainStudentName())); //substring(0,15)
-                        } else {
-                            table.addCell("Pendiente");
-                        }
-                        if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            table.addCell(assignment.getAssistantStudentName());
-                        } else {
-                            table.addCell("                    "); //table.addCell("No Requerido o Pendiente");
-                        }
-                    }
-
-                    // Add table to document
-                    document.add(table);
-
-                }
-                // Separation between dates
-                document.add(new Paragraph().setFixedLeading(INTERLINE));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }*/
 
     @FXML
     private void generatePdf() {
@@ -399,141 +263,32 @@ public class Assignments
 
         } else {
 
-            /*BEFORE
-            String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-            List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
-            */
-            /*AFTER*/
             Predicate<Assignment> searchFilter = assignment -> {
                 return assignment.getDate().isAfter(datePickerStart.getValue()) &&
                         assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
             };
             filteredAssignments.setPredicate(searchFilter);
 
-            sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
-                String name1 = o1.getName();
-                String name2 = o2.getName();
+            sortedAssignments = this.sorting(filteredAssignments);
 
-                // Prioridad "P" al principio
-                if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
-                if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
+            assignmentTable.setItems(sortedAssignments);
 
-                // Prioridad "O" al final
-                if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
-                if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
-
-                // Ordenar números en orden ascendente
-                boolean name1IsNumber = Character.isDigit(name1.charAt(0));
-                boolean name2IsNumber = Character.isDigit(name2.charAt(0));
-
-                if (name1IsNumber && !name2IsNumber) return -1;
-                if (!name1IsNumber && name2IsNumber) return 1;
-
-                // Si ambos o ninguno es número, orden alfabético
-                return name1.compareTo(name2);
-            });
-
-            sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
-
-
-            assignmentTable.setItems(sortedAssignments); //sortedAssignments
-
-            //Order by Date Column
+            // Order by Date Column
             dateColumn.setSortable(true);
             assignmentTable.getSortOrder().add(dateColumn);
             dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
 
-            //Order by AssignmentName Column //This causes pdf format will be incorrect
-        /*assignmentName.setSortable(true);
-        assignmentTable.getSortOrder().add(assignmentName);
-        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
+            assignmentTable.sort();
 
-            assignmentTable.sort(); // Apply order*/
-
-
+            // Grouping data
             Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(sortedAssignments); //filteredAssignments
             // Generate PDF
-            /*generatePDF(groupedData);*/ //BEFORE with generatePDF method in this class
             PdfAssignmentManager.generatePDF(groupedData);
 
         }
 
     }
 
-    // BEFORE: THis method in this class
-    /*public  void fillForms(List<Assignment> assignments) { //public static void
-
-        try {
-            int i = 0;
-            for (Assignment assignment : assignments) {
-                // Path to template form: Made manually
-                String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
-
-                // Assignments without students will not be generated
-                if(assignment.getMainStudentName() != null) {
-
-                    List<StudentsAssignment> listStudentsAssignment = getStudentsAssignmentByAssignment(assignment.getAssignmentId());
-                    Optional<Integer> mainStudentId = listStudentsAssignment.stream()
-                            .filter(student -> "mainStudent".equals(student.getRolStudent()))
-                            .map(StudentsAssignment::getStudentId)
-                            .findFirst();
-                    // Ever present, as "mainStudent" is the DEFAULT value in rol_student
-                        Student mainStudent = getStudentById(mainStudentId.orElse(0));
-                        String nameMainStudent = mainStudent.getName();
-
-                    // Output path filled form
-                    String outputPath = "../machadostudents-ui/assignments/"
-                            + nameMainStudent.replaceAll("\\s", "")
-                            + String.valueOf(i)
-                            + ".pdf";
-
-                    // Create a new document template based
-                    PdfReader reader = new PdfReader(templateForm);
-                    PdfWriter writer = new PdfWriter(outputPath);
-                    PdfDocument pdfDocument = new PdfDocument(reader, writer);
-                    PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDocument, true);
-
-                    float FONT_SIZE = 5f;
-
-                    // Fill fields
-                    form.getField("900_1_Text_SanSerif").setValue(nameMainStudent).setFontSize(FONT_SIZE);
-                    //// Fill assistant correctly in form
-                    Optional<Integer> assistantStudentId = listStudentsAssignment.stream()
-                            .filter(student -> "assistantStudent".equals(student.getRolStudent()))
-                            .map(StudentsAssignment::getStudentId)
-                            .findFirst();
-                    if(assistantStudentId.isPresent()) {
-                        Student assistantStudent = getStudentById(assistantStudentId.orElse(0));
-                        String nameAssistantStudent = assistantStudent.getName();
-                        form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
-                    } else {
-                        String nameAssistantStudent = "";
-                        form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
-                    }
-                    //// Fill other fields in form
-                    form.getField("900_3_Text_SanSerif").setValue(assignment.getDate().toString()).setFontSize(FONT_SIZE);
-                    form.getField("900_4_Text_SanSerif").setValue(assignment.getName()).setFontSize(FONT_SIZE);
-                    form.getField("900_5_CheckBox")
-                            .setCheckType(PdfFormField.TYPE_CHECK)
-                            .setValue("Yes")
-                            .setBackgroundColor(new DeviceRgb(0, 255, 0)); // Yet, isn't possible modify any checkbox property
-
-                    // Close PDF document
-                    pdfDocument.close();
-
-                    // In DialogBox
-                    System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputPath);
-
-                }
-                i++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }*/
 
     @FXML
     private void generateAssignments() {
@@ -547,19 +302,11 @@ public class Assignments
 
         } else {
 
-            /*String dateStartString = datePickerStart.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String dateEndString = datePickerEnd.getValue().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-            List<Assignment> assignments = webClientMachado.assignmentsBetweenDates(dateStartString, dateEndString).block();
-            //fillForms(assignments); //BEFORE with fillForms method in this class
-            List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
-            PdfAssignmentManager.fillForms(assignments, listStudentsAssignment);*/
-
-            // Agrupar los objetos por fecha
+            // Grouping objects by date
             Map<LocalDate, List<Assignment>> groupedByDate = filteredAssignments.stream()
                     .collect(Collectors.groupingBy(Assignment::getDate));
 
-            // Actualizar los objetos según la condición: Si una asignación está marcada como fecha sin reunión, la demás asignaciones de dicha fecha también estén marcadas como fecha sin reunión
+            // Update objects according condition: If assignment is marked as without meeting date, then the other assignments for this week will be marked as without meeting date
             groupedByDate.forEach((date, assignments) -> {
                 boolean anyMarked = assignments.stream().anyMatch(Assignment::isWeekWithoutMeet);
                 if (anyMarked) {
@@ -567,17 +314,15 @@ public class Assignments
                 }
             });
 
-            /*AFTER*/
             Predicate<Assignment> searchFilter = assignment -> {
                 return assignment.getDate().isAfter(datePickerStart.getValue()) &&
                         assignment.getDate().isBefore(datePickerEnd.getValue()) &&
-                        !assignment.isWeekWithoutMeet(); //week without meeting
+                        !assignment.isWeekWithoutMeet(); // Without meeting week
             };
             filteredAssignments.setPredicate(searchFilter);
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
-            //assignmentTable.setItems(filteredAssignments);
-            PdfAssignmentManager.fillForms(filteredAssignments, listStudentsAssignment);
 
+            PdfAssignmentManager.fillForms(filteredAssignments, listStudentsAssignment);
 
             // Convert PDFs in Images
             try {
@@ -594,7 +339,6 @@ public class Assignments
                 while ((line = reader.readLine()) != null) {
                     toCompareCountGenerated = line;
                 }
-
 
                 process.waitFor();
                 int outputCode = process.exitValue();
@@ -613,25 +357,27 @@ public class Assignments
                     .count();*/
 
             if(Objects.equals(toCompareCountGenerated, Integer.toString(filteredAssignments.size()))){ //assignments.size()
-                // Unblock SEND TO WHATSAPP Button
 
+                // Unblock SEND TO WHATSAPP Button
                 System.out.println("Unblock SEND TO WHATSAPP Button");
-                //sendWappButton.getStyleClass().remove("send-button-invisible");
-                //sendWappButton.getStyleClass().add("send-button-visible");
+
                 sendWappButton.setVisible(true);
                 sendWappButton.setManaged(true);
 
                 Tooltip tooltip4 = new Tooltip("Send Img Assignments");
                 tooltip4.setFont(new Font("Arial", 16));
                 Tooltip.install(sendWappButton, tooltip4);
+
             }
 
         }
 
     }
 
+
     @FXML
     private void sendAssignments() {
+
         System.out.println("Sending Assignments...");
 
         // Send Images Assignments
@@ -671,6 +417,7 @@ public class Assignments
 
     }
 
+
     public static void show(Node element){
 
         try {
@@ -684,14 +431,17 @@ public class Assignments
 
     }
 
+
     @FXML
     public void close(){
         datePickerStart.getScene().getWindow().hide();
     }
 
+
     public Assignments getController() {
         return controller;
     }
+
 
     public void setController(Assignments controller) {
         this.controller = controller;
