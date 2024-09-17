@@ -103,12 +103,12 @@
                             <PropertyValueFactory property="section"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Name">
+                    <TableColumn fx:id="assignmentName" text="Name">
                         <cellValueFactory>
                             <PropertyValueFactory property="name"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Date">
+                    <TableColumn fx:id="dateColumn" text="Date">
                         <cellValueFactory>
                             <PropertyValueFactory property="date"/>
                         </cellValueFactory>

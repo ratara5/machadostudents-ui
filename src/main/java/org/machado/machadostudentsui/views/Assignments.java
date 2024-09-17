@@ -4,6 +4,7 @@ package org.machado.machadostudentsui.views;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -61,6 +62,11 @@ public class Assignments
     @FXML
     private VBox sendWappButton;
 
+    @FXML
+    private TableColumn<Assignment, LocalDate> dateColumn;
+    @FXML
+    private TableColumn<Assignment, String> assignmentName;
+
     private String toCompareCountGenerated;
     private String toCompareCountSent;
 
@@ -69,6 +75,8 @@ public class Assignments
     @Autowired
     private WebClientMachado webClientMachado;
     private FilteredList<Assignment> filteredAssignments;
+
+    private SortedList<Assignment> sortedAssignments;
 
     @FXML
     public void initialize() throws IOException { // throws IOException
@@ -81,17 +89,55 @@ public class Assignments
         webClientMachado.assignmentsAll().subscribe(this); //Implement Consumer
          */
 
-        /* AFTER: Show Assignments after current date */
+        /* AFTER: Show Assignments for the next month */
         Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
         ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
         filteredAssignments = new FilteredList<>(observableAssignmentList);
 
          Predicate<Assignment> initialFilter = assignment -> {
-            return assignment.getDate().isAfter(LocalDate.now()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
         filteredAssignments.setPredicate(initialFilter);
+
+        sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
+            String name1 = o1.getName();
+            String name2 = o2.getName();
+
+            // Prioridad "P" al principio
+            if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
+            if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
+
+            // Prioridad "O" al final
+            if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
+            if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
+
+            // Ordenar números en orden ascendente
+            boolean name1IsNumber = Character.isDigit(name1.charAt(0));
+            boolean name2IsNumber = Character.isDigit(name2.charAt(0));
+
+            if (name1IsNumber && !name2IsNumber) return -1;
+            if (!name1IsNumber && name2IsNumber) return 1;
+
+            // Si ambos o ninguno es número, orden alfabético
+            return name1.compareTo(name2);
+        });
+
+        sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
+
         assignmentTable.getItems().clear(); // Implements Consumer
-        assignmentTable.setItems(filteredAssignments);
+        assignmentTable.setItems(sortedAssignments); //sortedAssignments
+
+        //Order by Date Column
+        dateColumn.setSortable(true);
+        assignmentTable.getSortOrder().add(dateColumn);
+        dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+
+        //Order by AssignmentName Column //This causes pdf format will be incorrect
+        /*assignmentName.setSortable(true);
+        assignmentTable.getSortOrder().add(assignmentName);
+        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
+
+        assignmentTable.sort(); // Apply order*/
         
 
         MenuItem edit = new MenuItem("Assign Student");
@@ -145,7 +191,45 @@ public class Assignments
                     assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
         filteredAssignments.setPredicate(searchFilter);
-        assignmentTable.setItems(filteredAssignments);
+        sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
+            String name1 = o1.getName();
+            String name2 = o2.getName();
+
+            // Prioridad "P" al principio
+            if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
+            if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
+
+            // Prioridad "O" al final
+            if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
+            if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
+
+            // Ordenar números en orden ascendente
+            boolean name1IsNumber = Character.isDigit(name1.charAt(0));
+            boolean name2IsNumber = Character.isDigit(name2.charAt(0));
+
+            if (name1IsNumber && !name2IsNumber) return -1;
+            if (!name1IsNumber && name2IsNumber) return 1;
+
+            // Si ambos o ninguno es número, orden alfabético
+            return name1.compareTo(name2);
+        });
+
+        sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
+
+        assignmentTable.setItems(sortedAssignments); //sortedAssignments
+
+        //Order by Date Column
+        dateColumn.setSortable(true);
+        assignmentTable.getSortOrder().add(dateColumn);
+        dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+
+        //Order by AssignmentName Column //This causes pdf format will be incorrect
+        /*assignmentName.setSortable(true);
+        assignmentTable.getSortOrder().add(assignmentName);
+        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
+
+        assignmentTable.sort(); // Apply order*/
+
 
         sendWappButton.setVisible(false);
         sendWappButton.setManaged(false);
@@ -327,10 +411,49 @@ public class Assignments
                         assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
             };
             filteredAssignments.setPredicate(searchFilter);
-            assignmentTable.setItems(filteredAssignments);
+
+            sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
+                String name1 = o1.getName();
+                String name2 = o2.getName();
+
+                // Prioridad "P" al principio
+                if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
+                if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
+
+                // Prioridad "O" al final
+                if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
+                if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
+
+                // Ordenar números en orden ascendente
+                boolean name1IsNumber = Character.isDigit(name1.charAt(0));
+                boolean name2IsNumber = Character.isDigit(name2.charAt(0));
+
+                if (name1IsNumber && !name2IsNumber) return -1;
+                if (!name1IsNumber && name2IsNumber) return 1;
+
+                // Si ambos o ninguno es número, orden alfabético
+                return name1.compareTo(name2);
+            });
+
+            sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
 
 
-            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(filteredAssignments);
+            assignmentTable.setItems(sortedAssignments); //sortedAssignments
+
+            //Order by Date Column
+            dateColumn.setSortable(true);
+            assignmentTable.getSortOrder().add(dateColumn);
+            dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
+
+            //Order by AssignmentName Column //This causes pdf format will be incorrect
+        /*assignmentName.setSortable(true);
+        assignmentTable.getSortOrder().add(assignmentName);
+        assignmentName.setSortType(TableColumn.SortType.ASCENDING);*/
+
+            assignmentTable.sort(); // Apply order*/
+
+
+            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(sortedAssignments); //filteredAssignments
             // Generate PDF
             /*generatePDF(groupedData);*/ //BEFORE with generatePDF method in this class
             PdfAssignmentManager.generatePDF(groupedData);
@@ -491,6 +614,7 @@ public class Assignments
 
             if(Objects.equals(toCompareCountGenerated, Integer.toString(filteredAssignments.size()))){ //assignments.size()
                 // Unblock SEND TO WHATSAPP Button
+
                 System.out.println("Unblock SEND TO WHATSAPP Button");
                 //sendWappButton.getStyleClass().remove("send-button-invisible");
                 //sendWappButton.getStyleClass().add("send-button-visible");

@@ -54,7 +54,7 @@
             <padding>
                 <Insets top="10"/>
             </padding>
-            <TableView fx:id="studentTable" prefHeight="800.0" prefWidth="1000.0">
+            <TableView fx:id="studentTable" prefHeight="550.0" prefWidth="1000.0">
                 <columns>
                     <!--<TableColumn text="Entity ID">
                             <cellValueFactory>

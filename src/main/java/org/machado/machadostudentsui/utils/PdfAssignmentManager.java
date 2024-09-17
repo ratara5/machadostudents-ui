@@ -4,6 +4,8 @@ import com.itextpdf.forms.PdfAcroForm;
 import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.colors.WebColors;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -131,7 +133,7 @@ public class PdfAssignmentManager {
                 p.setTextAlignment(TextAlignment.LEFT);
                 document.add(p);
 
-                // Iterarate into sections inside each date
+                // Iterate through sections inside each date
                 int i=0;
                 for (String section : groupedData.get(date).keySet()) {
 
@@ -184,7 +186,8 @@ public class PdfAssignmentManager {
 
 
                     // Create table
-                    Table table = new Table(UnitValue.createPercentArray(new float[]{50, 25, 25}));
+                    float[] columnWidths = {50, 25, 25};
+                    Table table = new Table(UnitValue.createPercentArray(columnWidths));
                     //table.setBorder(Border.NO_BORDER);
 
                     // Setup columns width
@@ -241,32 +244,50 @@ public class PdfAssignmentManager {
 
                     // Iterate upon records inside each date and section
                     for (Assignment assignment : groupedData.get(date).get(section)) {
-                        if(assignment.isWeekWithoutMeet()) {
-                            Cell cellWithoutMeet = new Cell(1, 3);
-                            cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
-                            table.addCell(cellWithoutMeet);
-                            //table.addCell("Semana sin reunión");
-                            //table.addCell("Semana sin reunión");
-                            document.add(table);
-                            continue outerLoop;
-                        }
-                        // Add row to table
-                        Cell cellAssignmentName = new Cell();
-                        //cell1.setWidth(UnitValue.createPointValue(200));
-                        Paragraph pA = new Paragraph(assignment.getName());
-                        pA.setBold();
+                        if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
+                            if (assignment.isWeekWithoutMeet()) {
+                                Cell cellWithoutMeet = new Cell(1, 3);
+                                cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
+                                table.addCell(cellWithoutMeet);
+                                //table.addCell("Semana sin reunión");
+                                //table.addCell("Semana sin reunión");
+                                document.add(table);
+                                continue outerLoop;
+                            }
+                            // Add row to table
+                            Cell cellAssignmentName = new Cell();
+                            //cell1.setWidth(UnitValue.createPointValue(200));
+                            //String assignmentName = assignment.getName().length() > 60 ? //50 + 10 = 60 is the width for this column table
+                            //        assignment.getName().substring(0,60) :
+                            //        assignment.getName();
 
-                        if(i != 0 && i != 4) {
-                            pA.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                            //trim assignment name if its width is greater than respective cell width
+                            PdfFont font = PdfFontFactory.createFont();
+                            String assignmentNameString = assignment.getName();
 
-                        } else {
-                            cellAssignmentName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
-                        }
-                        cellAssignmentName.add(pA);
-                        cellAssignmentName.setBorder(border);
+                            float tableWidth = pdfDoc.getDefaultPageSize().getWidth() - document.getLeftMargin() - document.getRightMargin();
+                            float cellAssignmentNameWidth = tableWidth * columnWidths[0] / 100f;
 
-                        table.addCell(cellAssignmentName);
-                        //table.addCell(assignment.getName());
+                            float assignmentNameTextWidth = font.getWidth(assignmentNameString, FONT_SIZE);
+                            String assignmentName = assignmentNameTextWidth > cellAssignmentNameWidth ?
+                                    assignment.getName().substring(0, 54) : //54 for count characters in cell for assignment name in test pdf
+                                    assignment.getName();
+
+                            // Create paragraph
+                            Paragraph pA = new Paragraph(assignmentName);
+                            pA.setBold();
+
+                            if (i != 0 && i != 4) {
+                                pA.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+
+                            } else {
+                                cellAssignmentName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                            }
+                            cellAssignmentName.add(pA);
+                            cellAssignmentName.setBorder(border);
+
+                            table.addCell(cellAssignmentName);
+                            //table.addCell(assignment.getName());
                         /*AFTER: String mainName = assignment.getMainStudentName();
 
                         if (null == assignment.getAssistantStudentName() || assignment.getAssistantStudentName().isEmpty()) {
@@ -289,41 +310,42 @@ public class PdfAssignmentManager {
 
                         }*/
 
-                        /*BEFORE*/
-                        Cell cellMainName = new Cell();
-                        Cell cellAssistantName = new Cell();
-                        if(i == 0 || i == 4) {
-                            cellMainName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
-                            cellAssistantName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
-                        }
-                        if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
+                            /*BEFORE*/
+                            Cell cellMainName = new Cell();
+                            Cell cellAssistantName = new Cell();
+                            if (i == 0 || i == 4) {
+                                cellMainName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                                cellAssistantName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
+                            }
+                            /*if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {*/
                             Paragraph pN = new Paragraph(assignment.getMainStudentName());
                             pN.setCharacterSpacing(0.4f);
                             cellMainName.add(pN);
 
 
-                        }
-                        else {
+                            /*}*/
+                        /*else {
                             cellMainName.add(new Paragraph("Pendiente"));
-                        }
-                        cellMainName.setBorder(border);
-                        table.addCell(cellMainName);
+                        }*/
+                            cellMainName.setBorder(border);
+                            table.addCell(cellMainName);
 
-                        if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            Paragraph pH = new Paragraph(assignment.getAssistantStudentName());
-                            pH.setCharacterSpacing(0.4f);
-                            cellAssistantName.add(pH);
+                            if (null != assignment.getAssistantStudentName() && !assignment.getMainStudentName().isEmpty()) {
+                                Paragraph pH = new Paragraph(assignment.getAssistantStudentName());
+                                pH.setCharacterSpacing(0.4f);
+                                cellAssistantName.add(pH);
 
-                            cellAssistantName.setBorder(border);
-                            table.addCell(pH);
+                                cellAssistantName.setBorder(border);
+                                table.addCell(cellAssistantName);
 
 
-                        } else {
-                            cellAssistantName.add(new Paragraph("                    "));
+                            } else {
+                                cellAssistantName.add(new Paragraph("                    "));
 
-                            cellAssistantName.setBorder(border);
-                            table.addCell(cellAssistantName);
+                                cellAssistantName.setBorder(border);
+                                table.addCell(cellAssistantName);
 
+                            }
                         }
 
                     }
@@ -414,7 +436,8 @@ public class PdfAssignmentManager {
 
                     String monthName = FormatUtils.monthOfNumber.getOrDefault(monthNumber, "Mes").substring(0,3);
                     form.getField("900_3_Text_SanSerif").setValue( dayNumber + " de " + monthName + " de " + yearNumber).setFontSize(FONT_SIZE);
-                    form.getField("900_4_Text_SanSerif").setValue(assignment.getName()).setFontSize(FONT_SIZE);
+                    String assignmentName = assignment.getName(); //.substring(0,20); //0,54
+                    form.getField("900_4_Text_SanSerif").setValue(assignmentName).setFontSize(FONT_SIZE);
                     form.getField("900_5_CheckBox")
                             .setCheckType(PdfFormField.TYPE_CHECK)
                             .setValue("Yes")
