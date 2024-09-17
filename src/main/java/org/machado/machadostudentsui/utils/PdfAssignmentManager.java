@@ -32,9 +32,9 @@ import static org.machado.machadostudentsui.utils.FormatUtils.meses;
 public class PdfAssignmentManager {
 
     /**
-     * Método para convertir un color en formato hexadecimal a un array de enteros RGB.
-     * @param hexColor Color en formato hexadecimal (con o sin '#').
-     * @return Array de enteros correspondiente a los componentes RGB.
+     * Method: convert color from hexadecimal to RGB integers array.
+     * @param hexColor Color in hexadecimal format (with or without '#').
+     * @return RGB Integers array.
      */
     public static int[] hexToRgb(String hexColor) {
         if (hexColor.startsWith("#")) {
@@ -47,16 +47,16 @@ public class PdfAssignmentManager {
     }
 
     /**
-     * Método para convertir un string de un array de enteros a un array de enteros.
-     * @param rgbString String en formato "[r, g, b]".
-     * @return Array de enteros correspondiente a los componentes RGB.
+     * *Method: convert from integers array string to integers array.
+     * @param rgbString String in "[r, g, b]" format.
+     * @return Integers array corresponding to RGB components.
      */
     public static int[] stringToRgbArray(String rgbString) {
-        rgbString = rgbString.replaceAll("\\[|\\]|\\s", "");  // Eliminar corchetes y espacios
-        String[] rgbStrArray = rgbString.split(",");          // Separar por comas
+        rgbString = rgbString.replaceAll("\\[|\\]|\\s", "");  // Delete square braces and spaces
+        String[] rgbStrArray = rgbString.split(",");          // Separation by comma
         int[] rgbArray = new int[rgbStrArray.length];
         for (int i = 0; i < rgbStrArray.length; i++) {
-            rgbArray[i] = Integer.parseInt(rgbStrArray[i]);   // Convertir a enteros
+            rgbArray[i] = Integer.parseInt(rgbStrArray[i]);   // To integer conversion
         }
         return rgbArray;
     }
@@ -82,14 +82,14 @@ public class PdfAssignmentManager {
     }
 
     public static <K, V> K obtenerPrimeraClave(Map<K, V> map) {
-        // Obtener un iterator sobre el conjunto de claves
+        // Get iterator from key set
         Iterator<K> iterator = map.keySet().iterator();
 
-        // Verificar si hay una primera clave y retornarla
+        // Verify if there is a first key and return it
         if (iterator.hasNext()) {
             return iterator.next();
         } else {
-            return null; // El mapa está vacío
+            return null; //Empty map
         }
     }
 
@@ -104,8 +104,8 @@ public class PdfAssignmentManager {
 
             document.setCharacterSpacing(0.6f);
 
-            LocalDate primeraClave = obtenerPrimeraClave(groupedData);
-            String primerMes = primeraClave.getMonth().toString();
+            LocalDate firstKey = obtenerPrimeraClave(groupedData);
+            String primerMes = firstKey.getMonth().toString();
             String mes = primerMes.substring(0, 1).toUpperCase() + primerMes.substring(1).toLowerCase();
 
             Paragraph pHead=new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + meses.getOrDefault(mes, "Mes no encontrado").toUpperCase() + " 2024");
@@ -121,9 +121,9 @@ public class PdfAssignmentManager {
             for (LocalDate date : groupedData.keySet()) {
 
                 Class<?> myAssignment = groupedData.get(date).get("TESOROS DE LA BIBLIA").get(0).getClass();
-                java.lang.reflect.Method metodo = myAssignment.getMethod("getReading");
-                Object retorno = metodo.invoke(groupedData.get(date).get("TESOROS DE LA BIBLIA").get(0));
-                String reading = (String) retorno;
+                java.lang.reflect.Method readingMethod = myAssignment.getMethod("getReading");
+                Object returnedObject = readingMethod.invoke(groupedData.get(date).get("TESOROS DE LA BIBLIA").get(0));
+                String reading = (String) returnedObject;
 
 
                 Paragraph p=new Paragraph("MARTES " + date.getDayOfMonth() + " / " + reading);
@@ -137,37 +137,35 @@ public class PdfAssignmentManager {
                 int i=0;
                 for (String section : groupedData.get(date).keySet()) {
 
-                    //document.add(pS);
-
                     // Mapa principal que contendrá los estilos para diferentes valores de i
                     Map<Integer, Map<String, String>> styleMap = new HashMap<>();
 
-                    // Estilos para i=0 y i=4
+                    // Styles for i=0 y i=4
                     Map<String, String> style0 = new HashMap<>();
-                    style0.put("fontColor", "#000000");      // Negro
-                    style0.put("bgColor", "#90B1DD");        // Azul claro
+                    style0.put("fontColor", "#000000"); // Black
+                    style0.put("bgColor", "#90B1DD"); // Light blue
                     styleMap.put(0, style0);
-                    styleMap.put(4, style0);  // Mismo estilo para i=4
+                    styleMap.put(4, style0); // Same style for i=4
 
-                    // Estilos para i=1
+                    // Styles for i=1
                     Map<String, String> style1 = new HashMap<>();
-                    style1.put("fontColor", "#7ABCC6");      // Turquesa más claro
-                    style1.put("bgColor", "#2B6C75");        // Turquesa
+                    style1.put("fontColor", "#7ABCC6"); // Extra light turquoise
+                    style1.put("bgColor", "#2B6C75"); // Turquoise
                     styleMap.put(1, style1);
 
-                    // Estilos para i=2
+                    // Styles for i=2
                     Map<String, String> style2 = new HashMap<>();
-                    style2.put("fontColor", "#FFCA64");      // Mostaza más claro
-                    style2.put("bgColor", "#936924");        // Mostaza oscuro
+                    style2.put("fontColor", "#FFCA64"); // Extra light mustard
+                    style2.put("bgColor", "#936924"); // Dark mustard
                     styleMap.put(2, style2);
 
-                    // Estilos para i=3
+                    // Styles for i=3
                     Map<String, String> style3 = new HashMap<>();
-                    style3.put("fontColor", "#CD7473");      // Terracota más claro
-                    style3.put("bgColor", "91312D");        // Terracota
+                    style3.put("fontColor", "#CD7473"); // Extra light terracotta
+                    style3.put("bgColor", "91312D"); // Terracotta
                     styleMap.put(3, style3);
 
-                    // Añadir la clave "borderColor" con los valores RGB correspondientes al "bgColor"
+                    // Add "borderColor" key with RGB values corresponding to "bgColor"
                     for (Map.Entry<Integer, Map<String, String>> entry : styleMap.entrySet()) {
                         Map<String, String> styles = entry.getValue();
                         String bgColor = styles.get("bgColor");
@@ -176,14 +174,6 @@ public class PdfAssignmentManager {
                             styles.put("borderColor", Arrays.toString(rgb));
                         }
                     }
-
-
-
-
-                    // En caso de que la semana sea sin reunión
-                    /*boolean noMeetMark = org.machado.machadostudentsui.views.popups.AssignmentEdit.noMeetMark;
-                    if(noMeetMark) continue;*/
-
 
                     // Create table
                     float[] columnWidths = {50, 25, 25};
@@ -195,71 +185,40 @@ public class PdfAssignmentManager {
 
                     // Section name
                     Paragraph pS = new Paragraph(section);
-                    /*switch(i){
-                        case 1: //0. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("86BFCA"),1); //"86BFCA"
-                            break;
-                        case 2: //1. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("#BA9552"),1); //"#BA9552"
-                            break;
-                        case 3: //2. Because 0 and four are now PRESIDENCIA Y ORACION FINAL
-                            pS.setFontColor(WebColors.getRGBColor("#D27674"),1); //"#D27674"
-                            break;
-                    }*/
                     String borderColorStr = styleMap.get(i).get("borderColor");
                     int[] borderColorRgb = stringToRgbArray(borderColorStr);
                     DeviceRgb borderColor = new DeviceRgb(borderColorRgb[0], borderColorRgb[1], borderColorRgb[2]);
                     SolidBorder border = new SolidBorder(borderColor, 1);
 
-                    // Cell with section name. Excepts PRESIDENCIA & ORACIÓN FINAL
+                    // Cell with section name. Excepts "PRESIDENCIA" & "ORACIÓN FINAL"
                     if(i != 0 && i != 4) {
                         Cell cell1 = new Cell(1, 3);
-                        //cell1.setWidth(UnitValue.createPointValue(200));
+
                         cell1.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
-                        //cell1.setBorderLeft(new SolidBorder()); //ColorConstants.WHITE, 1
                         pS.setFontColor(WebColors.getRGBColor(styleMap.get(i).get("fontColor")));
                         pS.setBold();
-
-
 
                         cell1.add(pS);
                         table.addCell(cell1);
                         table.setBorder(border);
                     }
 
-
-
-                    // Setup headers columns
-                    /*String[] encs = {"Intervención", "Encargado", "Ayudante"};
-                    for (String e:encs) {
-                        Cell cell = new Cell();
-                        //cell.setBorder(Border.NO_BORDER);
-                        cell.setBackgroundColor(WebColors.getRGBColor("black"));
-                        Paragraph pI = new Paragraph(e);
-                        pI.setFontColor(WebColors.getRGBColor("white"),0);
-                        pI.setBold();
-                        cell.add(pI);
-                        table.addCell(cell);
-                    }*/
-
-                    // Iterate upon records inside each date and section
+                    // Iterate records inside each date and section
                     for (Assignment assignment : groupedData.get(date).get(section)) {
+
                         if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
                             if (assignment.isWeekWithoutMeet()) {
                                 Cell cellWithoutMeet = new Cell(1, 3);
+
                                 cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
                                 table.addCell(cellWithoutMeet);
-                                //table.addCell("Semana sin reunión");
-                                //table.addCell("Semana sin reunión");
+
                                 document.add(table);
                                 continue outerLoop;
                             }
+
                             // Add row to table
                             Cell cellAssignmentName = new Cell();
-                            //cell1.setWidth(UnitValue.createPointValue(200));
-                            //String assignmentName = assignment.getName().length() > 60 ? //50 + 10 = 60 is the width for this column table
-                            //        assignment.getName().substring(0,60) :
-                            //        assignment.getName();
 
                             //trim assignment name if its width is greater than respective cell width
                             PdfFont font = PdfFontFactory.createFont();
@@ -270,7 +229,7 @@ public class PdfAssignmentManager {
 
                             float assignmentNameTextWidth = font.getWidth(assignmentNameString, FONT_SIZE);
                             String assignmentName = assignmentNameTextWidth > cellAssignmentNameWidth ?
-                                    assignment.getName().substring(0, 54) : //54 for count characters in cell for assignment name in test pdf
+                                    assignment.getName().substring(0, 54) : //54 obtained by means of count characters in cell for assignment name in test pdf
                                     assignment.getName();
 
                             // Create paragraph
@@ -287,46 +246,18 @@ public class PdfAssignmentManager {
                             cellAssignmentName.setBorder(border);
 
                             table.addCell(cellAssignmentName);
-                            //table.addCell(assignment.getName());
-                        /*AFTER: String mainName = assignment.getMainStudentName();
 
-                        if (null == assignment.getAssistantStudentName() || assignment.getAssistantStudentName().isEmpty()) {
-
-                            Cell cellMain = new Cell(1, 2);
-                            cellMain.add(new Paragraph(mainName));
-                            table.addCell(cellMain);
-
-                        }
-                        else {
-
-                            String assistantName = assignment.getAssistantStudentName();
-                            Cell cellMain = new Cell();
-                            cellMain.add(new Paragraph(mainName));
-                            table.addCell(cellMain);
-
-                            Cell cellAssistant = new Cell();
-                            cellAssistant.add(new Paragraph(assistantName));
-                            table.addCell(cellMain);
-
-                        }*/
-
-                            /*BEFORE*/
+                            // Add students names
                             Cell cellMainName = new Cell();
                             Cell cellAssistantName = new Cell();
                             if (i == 0 || i == 4) {
                                 cellMainName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
                                 cellAssistantName.setBackgroundColor(WebColors.getRGBColor(styleMap.get(i).get("bgColor")));
                             }
-                            /*if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {*/
+
                             Paragraph pN = new Paragraph(assignment.getMainStudentName());
                             pN.setCharacterSpacing(0.4f);
                             cellMainName.add(pN);
-
-
-                            /*}*/
-                        /*else {
-                            cellMainName.add(new Paragraph("Pendiente"));
-                        }*/
                             cellMainName.setBorder(border);
                             table.addCell(cellMainName);
 
@@ -338,13 +269,11 @@ public class PdfAssignmentManager {
                                 cellAssistantName.setBorder(border);
                                 table.addCell(cellAssistantName);
 
-
                             } else {
                                 cellAssistantName.add(new Paragraph("                    "));
 
                                 cellAssistantName.setBorder(border);
                                 table.addCell(cellAssistantName);
-
                             }
                         }
 
@@ -356,6 +285,7 @@ public class PdfAssignmentManager {
                     i++;
 
                 }
+
                 // Separation between dates
                 document.add(new Paragraph().setFixedLeading(INTERLINE));
             }

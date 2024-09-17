@@ -16,7 +16,7 @@ public class FormatUtils {
         monthOfNumber.put("05", "Mayo");
         monthOfNumber.put("06", "Junio");
         monthOfNumber.put("07", "Julio");
-        monthOfNumber.put("08","Agosto");
+        monthOfNumber.put("08", "Agosto");
         monthOfNumber.put("09", "Septiembre");
         monthOfNumber.put("10", "Octubre");
         monthOfNumber.put("11", "Noviembre");
