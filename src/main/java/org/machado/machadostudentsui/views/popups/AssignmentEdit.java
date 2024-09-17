@@ -145,10 +145,10 @@ public class AssignmentEdit {
         studentNameLabel.setId(null); //In room 'Ppal'
         assistantNameLabel.setId(null); //In room 'Ppal'
 
-        for (Object nodo : studentsGridPane.getChildren()) {
+        for (Object node : studentsGridPane.getChildren()) {
 
-            if (nodo instanceof Label) {
-                Label label = (Label) nodo;
+            if (node instanceof Label) {
+                Label label = (Label) node;
                 for(int i=0;i<listStudentsAssignment.size();i++) {
                     StudentsAssignment studentsAssignment = listStudentsAssignment.get(i);
                     Student student = listStudentsAssignment.get(i).getStudent();
@@ -205,8 +205,6 @@ public class AssignmentEdit {
                     return !itemID.equals(newValue) ;
                 }
             });
-            //applyFilters(); //NO!
-            //studentForAssignmentTable.setItems(filteredStudents); //This isn't necessary
         });
 
         assistantNameLabel.idProperty().addListener((observable, oldValue, newValue) -> {
@@ -235,8 +233,6 @@ public class AssignmentEdit {
                 return !itemID.equals(studentNameLabelId);
             };
             filteredStudents.setPredicate(condition1.or(condition2)); //.or(condition3)
-            //applyFilters(); //NO! BETTER store Predicates(?)
-            //studentForAssignmentTable.setItems(filteredStudents);
         });
 
         ////filtered for search input
@@ -250,8 +246,7 @@ public class AssignmentEdit {
                 // Compare first name and last name field in your object with filter.
                 String lowerCaseFilter = newValue.toLowerCase();
                 if (String.valueOf(student.getName()).toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                    // Filter matches first name.
+                    return true; // Filter matches first name.
                 } else if (String.valueOf(student.getLastName()).toLowerCase().contains(lowerCaseFilter)) {
                     return true; // Filter matches last name.
                 }
@@ -397,9 +392,9 @@ public class AssignmentEdit {
     private void save() {
 
         HashMap<Integer, String> hashMapLabels = new HashMap<>();
-        for (Object nodo : studentsGridPane.getChildren()) {
-            if (nodo instanceof Label) {
-                Label label = (Label) nodo;
+        for (Object node: studentsGridPane.getChildren()) {
+            if (node instanceof Label) {
+                Label label = (Label) node;
 
                 // Get labelId (fx:id), which is studentId
                 String idString = label.getId();
@@ -409,10 +404,10 @@ public class AssignmentEdit {
                     // Get content getUserData, which is "mainStudent" or "assistantStudent" //in "Ppal" room
                     Object userData = label.getUserData();
                     if (userData instanceof String) {
-                        String contenido = (String) userData;
+                        String contentUserData = (String) userData;
 
                         // Add to HashMap
-                        hashMapLabels.put(id, contenido);
+                        hashMapLabels.put(id, contentUserData);
                     }
                 }
             }
@@ -450,50 +445,23 @@ public class AssignmentEdit {
                         deleteHandler.accept(Integer.toString(id),
                                 Integer.toString(assignment.getAssignmentId()));
                     }
-                    // En caso de que la semana sea sin reunión
+
+                    // If without meeting week
                     if(checkbox.isSelected()){
-                        /*noMeetMark = true;
-                        week = assignment.getDate();*/
                         assignment.setWeekWithoutMeet(true);
 
-                    } /*else {
-                        noMeetMark = false;
-                        week = null;
                     }
-                    System.out.println("Valor de noMeetMark: " + noMeetMark + " para la semana " + week);*/
                     close();
 
                 })
                 .build().show();
 
-
-                //loadView(Menu.Assignment);
-
     }
 
     @FXML
     private void close() throws IOException {
-
-        //initialize();
-
-        //MainFrame.show();
-
-        //Assignments controller = Assignments.getController();
-
-        // Assignments.show(title);
-
-        /*Stage stage = (Stage) title.getScene().getWindow();
-        Parent root1 = assignmentLoader.getRoot();
-        stage.setScene(new Scene(root1));
-        stage.show();*/
-
-        Assignments assignmentController = assignmentLoader.getController(); //Null!!
+        Assignments assignmentController = assignmentLoader.getController(); // Null!!
         title.getScene().getWindow().hide();
-        //assignmentController.close();
-
-        //title.getScene().getWindow().hide();
-        //MainFrame.show();
-
     }
 
     @FXML
