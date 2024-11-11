@@ -2,16 +2,16 @@ package org.machado.machadostudentsui.views;
 
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import org.machado.machadostudentsclient.entity.Contact;
-import org.machado.machadostudentsclient.entity.Rol;
-import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.WebClientMachado;
+import org.machado.machadostudentsclient.entity.*;
+import org.machado.machadostudentsui.views.common.Dialog;
+import org.machado.machadostudentsui.views.popups.StudentEdit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import  org.machado.machadostudentsui.views.common.Dialog;
-import org.machado.machadostudentsui.views.popups.StudentEdit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -32,6 +32,9 @@ public class Students extends AbstractController implements Consumer<List<Studen
     @FXML
     public void initialize() {
 
+        FXMLLoader loader = new FXMLLoader(Students.class.getResource("Student.fxml"));
+        Students controller = (Students) loader.getController();
+
         rol.getItems().clear();
         rol.getItems().addAll(this.get());
         studentTable.getItems().clear(); // Implements Consumer
@@ -45,7 +48,11 @@ public class Students extends AbstractController implements Consumer<List<Studen
                 StudentEdit.edit(student,
                         (Consumer<Student>) this::save,
                         (Supplier<List<Rol>>) this::get,
-                        (List<Contact>) this.getContacts()); //rolWebClient::rolesAll
+                        (List<Contact>) this.getContacts(), //rolWebClient::rolesAll
+                        (List<StudentsAssignment>) this.getStudentsAssignmentByStudent(student.getStudentId()),
+                        (List<Assignment>) this.getAssignments(),
+                        (Students) controller,
+                        (FXMLLoader) loader);
             }
         });
 
@@ -70,6 +77,16 @@ public class Students extends AbstractController implements Consumer<List<Studen
 
     }
 
+    private List<StudentsAssignment> getStudentsAssignmentByStudent(int studentId) {
+        List<StudentsAssignment> listStudentsAssignment = webClientMachado.assignmentsPerStudent(studentId+"").block();
+        return listStudentsAssignment;
+    }
+
+    public List<Assignment> getAssignments() {
+        List<Assignment> assignments = webClientMachado.assignmentsAll().block();
+        return assignments;
+    }
+
     @FXML
     private void search() {
         studentTable.getItems().clear();
@@ -87,7 +104,15 @@ public class Students extends AbstractController implements Consumer<List<Studen
     @FXML
     private void addNew() {
         rol.getItems().clear();
-        StudentEdit.addNew(this::save, this::get, this.getContacts());
+        ArrayList<Assignment> assignments= new ArrayList<>();
+        ArrayList<StudentsAssignment> studentsAssignments= new ArrayList<>();
+        StudentEdit.addNew(this::save,
+                this::get,
+                this.getContacts()); /*,
+                studentsAssignments,
+                assignments,
+                this,
+                null);*/
     }
 
     private void save(Student student) {
