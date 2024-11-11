@@ -74,7 +74,7 @@
                     <Label fx:id="sourceLabel" text="Semana Sin Reunión"/>
                 </HBox>
                <Label fx:id="message" />
-                <HBox alignment="BOTTOM_CENTER">
+                <HBox fx:id="searchStudentBox" alignment="BOTTOM_CENTER">
                     <TextField fx:id="name" promptText="Student Name" />
                     <Button mnemonicParsing="false" onAction="#search" styleClass="wid-120" text="SEARCH" />
                 </HBox>
@@ -141,7 +141,7 @@
                   </columnResizePolicy>
                </TableView>
             </VBox>
-              <HBox>
+              <HBox fx:id="studentFiltersBox">
                     <VBox>
                        <fx:define>
                           <ToggleGroup fx:id="genderToggleGroup"/>

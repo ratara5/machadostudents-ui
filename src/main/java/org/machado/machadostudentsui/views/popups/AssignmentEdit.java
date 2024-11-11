@@ -16,6 +16,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -58,6 +59,10 @@ public class AssignmentEdit {
     private CheckBox checkbox;
     @FXML
     private Label sourceLabel;
+    @FXML
+    private HBox searchStudentBox;
+    @FXML
+    private HBox studentFiltersBox;
 
     private Assignment assignment;
     private StudentsAssignment studentsAssignment;
@@ -138,6 +143,15 @@ public class AssignmentEdit {
 
         // 2. Initialize elements content in the scene
         title.setText("Assign Student for:\n"+assignment.getName());
+
+        checkbox.setSelected(assignment.isWeekWithoutMeet());
+        // Hide everything else if this is True
+        if(checkbox.isSelected()){
+            studentsGridPane.setVisible(false);
+            studentForAssignmentTable.setVisible(false);
+            searchStudentBox.setVisible(false);
+            studentFiltersBox.setVisible(false);
+        }
 
         studentNameLabel.setUserData("mainStudent"); //In room 'Ppal'
         assistantNameLabel.setUserData("assistantStudent"); //In room 'Ppal'

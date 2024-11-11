@@ -144,6 +144,7 @@ public class Assignments
                         (BiConsumer<String, String>) this::getDeleteStudentAssignmentConsumer,
                         (List<StudentsAssignment>) this.getStudentsAssignmentByAssignment(assignment.getAssignmentId()),
                         (Supplier<List<Student>>) this::get,
+
                         (Assignments) controller,
                         (FXMLLoader) loader);
             }

@@ -205,17 +205,18 @@ public class PdfAssignmentManager {
 
                     // Iterate records inside each date and section
                     for (Assignment assignment : groupedData.get(date).get(section)) {
+                        if (assignment.isWeekWithoutMeet()) {
+                            Cell cellWithoutMeet = new Cell(1, 3);
+
+                            cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
+                            table.addCell(cellWithoutMeet);
+
+                            document.add(table);
+                            continue outerLoop;
+                        }
 
                         if (null != assignment.getMainStudentName() && !assignment.getMainStudentName().isEmpty()) {
-                            if (assignment.isWeekWithoutMeet()) {
-                                Cell cellWithoutMeet = new Cell(1, 3);
 
-                                cellWithoutMeet.add(new Paragraph("Semana sin reunión"));
-                                table.addCell(cellWithoutMeet);
-
-                                document.add(table);
-                                continue outerLoop;
-                            }
 
                             // Add row to table
                             Cell cellAssignmentName = new Cell();
