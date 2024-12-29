@@ -108,7 +108,7 @@ public class PdfAssignmentManager {
             String primerMes = firstKey.getMonth().toString();
             String mes = primerMes.substring(0, 1).toUpperCase() + primerMes.substring(1).toLowerCase();
 
-            Paragraph pHead=new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + meses.getOrDefault(mes, "Mes no encontrado").toUpperCase() + " 2024");
+            Paragraph pHead=new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + meses.getOrDefault(mes, "Mes no encontrado").toUpperCase() + " 2025");
             pHead.setFontSize(14f);
             pHead.setTextAlignment(TextAlignment.CENTER);
             pHead.setBold();
@@ -126,7 +126,7 @@ public class PdfAssignmentManager {
                 String reading = (String) returnedObject;
 
 
-                Paragraph p=new Paragraph("MARTES " + date.getDayOfMonth() + " / " + reading);
+                Paragraph p=new Paragraph("MIÉRCOLES " + date.getDayOfMonth() + " / " + reading);
                 p.setFontSize(11f);
                 p.setFontColor(WebColors.getRGBColor("#5A5D5E"),1);
                 p.setBold();
