@@ -128,6 +128,7 @@
                             <PropertyValueFactory property="assistantStudentName"/>
                         </cellValueFactory>
                     </TableColumn>
+                    <!--
                     <TableColumn text="Main Student Phone">
                         <cellValueFactory>
                             <PropertyValueFactory property="mainStudentPhone"/>
@@ -138,6 +139,7 @@
                             <PropertyValueFactory property="assistantStudentPhone"/>
                         </cellValueFactory>
                     </TableColumn>
+                    -->
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

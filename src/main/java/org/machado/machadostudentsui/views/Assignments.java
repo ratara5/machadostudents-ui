@@ -1,6 +1,7 @@
 package org.machado.machadostudentsui.views;
 
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -135,6 +137,46 @@ public class Assignments
 
         assignmentTable.sort(); // Apply order
 
+        TableColumn<Assignment, String> roomColumn = new TableColumn<>("Room");
+        roomColumn.setCellValueFactory(cellData -> {
+            Assignment assignment = cellData.getValue();
+            int id1 = assignment.getAssignmentId();
+            int id2 = assignment.getMainStudentId();
+
+            // Suponiendo que tienes acceso a un método que obtiene el 'room'
+            String room = getRoomByIds(id1, id2);
+
+            return new SimpleStringProperty(room);
+        });
+        assignmentTable.getColumns().add(roomColumn);
+
+        //Add duplicates
+        // Duplicar los registros con grade > 75
+        ObservableList<Assignment> duplicates = FXCollections.observableArrayList();
+        List<String> toDuplicate = Arrays.asList("PRESIDENTE", "3. Lectura de la Biblia", "SEAMOS MEJORES MAESTROS");
+        for (Assignment assignment : observableAssignmentList) {
+            if (toDuplicate.contains(assignment.getSection()) || toDuplicate.contains(assignment.getName())) {  // Condición para duplica
+                // Añadir el duplicado a la lista
+                /*duplicates.add(assignment);*/
+                // Modificar los campos seleccionados, sin crear una nueva instancia
+                Assignment duplicate = new Assignment(assignment.getAssignmentId(),
+                        assignment.getSection(),assignment.getName(),
+                        assignment.getDate(), "", "", "", ""); // Referencia al mismo objeto
+
+                // Añadir el duplicado a la lista (sin crear una nueva instancia)
+                duplicates.add(duplicate);
+
+            }
+        }
+
+        // Añadir los duplicados a la lista original
+        observableAssignmentList.addAll(duplicates);
+
+        // Asignar la lista a la TableView
+        assignmentTable.setItems(observableAssignmentList);
+
+
+
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
             Assignment assignment = assignmentTable.getSelectionModel().getSelectedItem();
@@ -230,6 +272,11 @@ public class Assignments
     private List<StudentsAssignment> getStudentsAssignmentByAssignment(int assignmentId) {
         List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsPerAssignment(assignmentId+"").block();
         return listStudentsAssignment;
+    }
+
+    private String getRoomByIds(int assignmentId, int mainStudentId) {
+        StudentsAssignment studentsAssignment = webClientMachado.studentAssignmentFor(assignmentId+"", mainStudentId+"").block();
+        return studentsAssignment !=null ? studentsAssignment.getRoom() : "NA";
     }
 
 
