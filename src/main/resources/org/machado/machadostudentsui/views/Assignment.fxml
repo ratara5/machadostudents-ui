@@ -88,11 +88,11 @@
             </padding>
             <TableView fx:id="assignmentTable" prefHeight="550.0" prefWidth="1000.0">
                 <columns>
-                    <!--<TableColumn text="Entity ID">
-                            <cellValueFactory>
+                    <TableColumn text="AssignmentID">
+                       <cellValueFactory>
                             <PropertyValueFactory property="assignmentId"/>
-                        </cellValueFactory>
-                    </TableColumn>-->
+                       </cellValueFactory>
+                    </TableColumn>
                     <TableColumn text="Reading">
                         <cellValueFactory>
                             <PropertyValueFactory property="reading"/>

@@ -63,6 +63,8 @@ public class AssignmentEdit {
     private HBox searchStudentBox;
     @FXML
     private HBox studentFiltersBox;
+    @FXML
+    private ToggleGroup roomToggleGroup;
 
     private Assignment assignment;
     private StudentsAssignment studentsAssignment;
@@ -73,6 +75,7 @@ public class AssignmentEdit {
     private List<StudentsAssignment> listStudentsAssignment;
     private FilteredList<Student> filteredStudents;
     private List<Integer> studentIdList;
+    private int actualStudentId;
     private int draggedStudentId;
     private LinkedList<Integer> candidatesIdsToDeleteList = new LinkedList<>();
     private boolean flagCandidatesToDeleteFromStudent = false;
@@ -85,6 +88,7 @@ public class AssignmentEdit {
                             BiConsumer<String, String> deleteHandler,
                             List<StudentsAssignment> listStudentsAssignment,
                             Supplier<List<Student>> supplier,
+                            Assignments.RoomProvider roomProvider,
                             Assignments assignmentController,
                             FXMLLoader assignmentLoader) {
 
@@ -100,6 +104,7 @@ public class AssignmentEdit {
                     deleteHandler,
                     listStudentsAssignment,
                     supplier,
+                    roomProvider,
                     assignmentController,
                     assignmentLoader);
             stage.sizeToScene();
@@ -116,6 +121,7 @@ public class AssignmentEdit {
             BiConsumer<String, String> deleteHandler,
             List<StudentsAssignment> listStudentsAssignment,
             Supplier<List<Student>> supplier,
+            Assignments.RoomProvider roomProvider,
             Assignments assignmentController,
             FXMLLoader assignmentLoader){
 
@@ -159,6 +165,7 @@ public class AssignmentEdit {
         studentNameLabel.setId(null); //In room 'Ppal'
         assistantNameLabel.setId(null); //In room 'Ppal'
 
+        ////Fill name students labels
         for (Object node : studentsGridPane.getChildren()) {
 
             if (node instanceof Label) {
@@ -167,11 +174,20 @@ public class AssignmentEdit {
                     StudentsAssignment studentsAssignment = listStudentsAssignment.get(i);
                     Student student = listStudentsAssignment.get(i).getStudent();
                     if (Objects.equals(studentsAssignment.getRolStudent(), label.getUserData())) {
+                        actualStudentId = studentsAssignment.getStudentId();
                         label.setId(studentsAssignment.getStudentId() + "");
                         label.setText(student.getName() + " " + student.getLastName());
                     }
                 }
             }
+
+            ////Select room radiobutton
+            String room = roomProvider.getRoom(assignment.getAssignmentId(), actualStudentId);
+            if ("Ppal".equals(room)) {
+                roomToggleGroup.selectToggle(roomToggleGroup.getToggles().get(0));
+            } else if ("Aux".equals(room)) {
+                roomToggleGroup.selectToggle(roomToggleGroup.getToggles().get(1));
+            } // "NA" none toggle
 
         }
         //// Initial Predicate to filteredStudents according to students in ListAssignment content
@@ -441,6 +457,8 @@ public class AssignmentEdit {
         System.out.println("to Save " + toSaveIds);
         System.out.println("to Delete " + toDeleteIds);
 
+        RadioButton selectedRadioButton = (RadioButton) roomToggleGroup.getSelectedToggle();
+
         Dialog.DialogBuilder.builder()
                 .title("Save Changes")
                 .message(String.format("Do you want to save changes for Assignment %s?", assignment.getName()))
@@ -451,7 +469,7 @@ public class AssignmentEdit {
                                 new StudentsAssignment(assignment.getAssignmentId(),
                                         id,
                                         hashMapLabels.get(id),
-                                        "Ppal"); //TODO:SELECT room FROM Combobox
+                                        selectedRadioButton.getText()); //TODO:SELECT room FROM Combobox (OK)
                         saveHandler.accept(studentsAssignment);
                     }
 

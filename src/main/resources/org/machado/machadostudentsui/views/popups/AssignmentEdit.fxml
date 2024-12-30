@@ -9,7 +9,9 @@
       maxWidth="-Infinity"
       minHeight="-Infinity"
       minWidth="-Infinity"
-      styleClass="dialog"
+      prefHeight="400.0"
+      prefWidth="600.0"
+      styleClass="content-view"
       stylesheets="@../style/application.css"
       xmlns="http://javafx.com/javafx/8.0.171"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -18,6 +20,13 @@
          <SVGPath content="M24 24.082v-1.649c2.203-1.241 4-4.337 4-7.432 0-4.971 0-9-6-9s-6 4.029-6 9c0 3.096 1.797 6.191 4 7.432v1.649c-6.784 0.555-12 3.888-12 7.918h28c0-4.030-5.216-7.364-12-7.918z" scaleX="3.0" scaleY="3.0" />
       </VBox>
       <VBox styleClass="dialog-body" HBox.hgrow="ALWAYS">
+            <VBox>
+              <fx:define>
+                  <ToggleGroup fx:id="roomToggleGroup"/>
+              </fx:define>
+              <RadioButton text="Ppal" toggleGroup="$roomToggleGroup"/>
+              <RadioButton text="Aux" toggleGroup="$roomToggleGroup"/>
+            </VBox>
             <Label fx:id="title" styleClass="dialog-title" text="Assign Student" />
             <VBox styleClass="dialog-message-box">
                <GridPane xmlns="http://javafx.com/javafx"

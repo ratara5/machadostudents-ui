@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -115,27 +114,23 @@ public class Assignments
         FXMLLoader loader = new FXMLLoader(Assignments.class.getResource("Assignment.fxml"));
         Assignments controller = (Assignments) loader.getController();
 
-        // Show Assignments for the day 1 of the next month
+
         Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
         ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
 
-        filteredAssignments = new FilteredList<>(observableAssignmentList);
+        // Show Assignments for the day 1 of the next month
         Predicate<Assignment> initialFilter = assignment -> {
             return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
-        filteredAssignments.setPredicate(initialFilter);
+        filteredAssignments = new FilteredList<>(observableAssignmentList, initialFilter);
 
         sortedAssignments = this.sorting(filteredAssignments);
 
         assignmentTable.getItems().clear();
         assignmentTable.setItems(sortedAssignments);
 
-        // Order by Date Column
-        dateColumn.setSortable(true);
-        assignmentTable.getSortOrder().add(dateColumn);
-        dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
 
-        assignmentTable.sort(); // Apply order
+        //Order before
 
         TableColumn<Assignment, String> roomColumn = new TableColumn<>("Room");
         roomColumn.setCellValueFactory(cellData -> {
@@ -150,14 +145,13 @@ public class Assignments
         });
         assignmentTable.getColumns().add(roomColumn);
 
+        /*
         //Add duplicates
-        // Duplicar los registros con grade > 75
         ObservableList<Assignment> duplicates = FXCollections.observableArrayList();
-        List<String> toDuplicate = Arrays.asList("PRESIDENTE", "3. Lectura de la Biblia", "SEAMOS MEJORES MAESTROS");
+        List<String> toDuplicate = Arrays.asList("PRESIDENCIA", "PRESIDENTE", "3. Lectura de la Biblia", "SEAMOS MEJORES MAESTROS");
         for (Assignment assignment : observableAssignmentList) {
             if (toDuplicate.contains(assignment.getSection()) || toDuplicate.contains(assignment.getName())) {  // Condición para duplica
                 // Añadir el duplicado a la lista
-                /*duplicates.add(assignment);*/
                 // Modificar los campos seleccionados, sin crear una nueva instancia
                 Assignment duplicate = new Assignment(assignment.getAssignmentId(),
                         assignment.getSection(),assignment.getName(),
@@ -171,11 +165,23 @@ public class Assignments
 
         // Añadir los duplicados a la lista original
         observableAssignmentList.addAll(duplicates);
+        */
+        //TODO: Show Assignments of the next month
 
         // Asignar la lista a la TableView
         assignmentTable.setItems(observableAssignmentList);
 
+        // Order by Date Column
+        dateColumn.setSortable(true);
+        assignmentTable.getSortOrder().add(dateColumn);
+        dateColumn.setSortType(TableColumn.SortType.ASCENDING); // or DESCENDING
 
+        // after, order by nameColumn:
+        assignmentName.setSortable(true);
+        assignmentTable.getSortOrder().add(assignmentName);
+        assignmentName.setSortType(TableColumn.SortType.ASCENDING);
+
+        assignmentTable.sort(); // Apply order
 
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
@@ -186,6 +192,8 @@ public class Assignments
                         (BiConsumer<String, String>) this::getDeleteStudentAssignmentConsumer,
                         (List<StudentsAssignment>) this.getStudentsAssignmentByAssignment(assignment.getAssignmentId()),
                         (Supplier<List<Student>>) this::get,
+                        this::getRoomByIds,
+
 
                         (Assignments) controller,
                         (FXMLLoader) loader);
@@ -279,6 +287,10 @@ public class Assignments
         return studentsAssignment !=null ? studentsAssignment.getRoom() : "NA";
     }
 
+    @FunctionalInterface
+    public interface RoomProvider {
+        String getRoom(int assignmentId, int mainStudentId);
+    }
 
     @Override
     public void accept(List<Assignment> assignments) {
