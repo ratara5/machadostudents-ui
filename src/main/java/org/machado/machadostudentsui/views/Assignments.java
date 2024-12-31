@@ -22,6 +22,7 @@ import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.utils.PdfAssignmentManager;
 import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
+import org.machado.machadostudentsui.views.popups.AssignmentEditAux;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
@@ -34,10 +35,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -107,6 +105,18 @@ public class Assignments
 
     }
 
+    private TableColumn<Assignment, String> createStudentColumn(String columnName, Function<Assignment, Integer> idExtractor) {
+        TableColumn<Assignment, String> column = new TableColumn<>(columnName);
+        column.setCellValueFactory(cellData -> {
+            Assignment assignment = cellData.getValue();
+            int studentId = idExtractor.apply(assignment);
+
+            Student student = getStudentById(studentId);
+            String name = (student != null) ? student.getName() : "NA";
+            return new SimpleStringProperty(name);
+        });
+        return column;
+    }
 
     @FXML
     public void initialize() throws IOException {
@@ -130,21 +140,14 @@ public class Assignments
         assignmentTable.setItems(sortedAssignments);
 
 
-        //Order before
+        //TODO: Order! before
 
-        TableColumn<Assignment, String> roomColumn = new TableColumn<>("Room");
-        roomColumn.setCellValueFactory(cellData -> {
-            Assignment assignment = cellData.getValue();
-            int id1 = assignment.getAssignmentId();
-            int id2 = assignment.getMainStudentId();
-
-            // Suponiendo que tienes acceso a un método que obtiene el 'room'
-            String room = getRoomByIds(id1, id2);
-
-            return new SimpleStringProperty(room);
-        });
-        assignmentTable.getColumns().add(roomColumn);
-
+        assignmentTable.getColumns().addAll(
+                createStudentColumn("mainPpalName", Assignment::getMainStudentPpalId),
+                createStudentColumn("assistantPpalName", Assignment::getAssistantStudentPpalId),
+                createStudentColumn("mainAuxName", Assignment::getMainStudentAuxId),
+                createStudentColumn("assistantAuxName", Assignment::getAssistantStudentAuxId)
+        );
         /*
         //Add duplicates
         ObservableList<Assignment> duplicates = FXCollections.observableArrayList();
@@ -199,8 +202,25 @@ public class Assignments
                         (FXMLLoader) loader);
             }
         });
+        MenuItem editAux = new MenuItem("Assign Student in Aux Room");
+        editAux.setOnAction(event -> {
+            Assignment assignment = assignmentTable.getSelectionModel().getSelectedItem();
+            if(null != assignment) {
+                AssignmentEditAux.edit(assignment,
+                        (Consumer<StudentsAssignment>) this::save,
+                        (BiConsumer<String, String>) this::getDeleteStudentAssignmentConsumer,
+                        (List<StudentsAssignment>) this.getStudentsAssignmentByAssignment(assignment.getAssignmentId()),
+                        (Supplier<List<Student>>) this::get,
+                        this::getRoomByIds,
 
-        assignmentTable.setContextMenu(new ContextMenu(edit));
+
+                        (Assignments) controller,
+                        (FXMLLoader) loader);
+            }
+        });
+
+
+        assignmentTable.setContextMenu(new ContextMenu(edit, editAux));
 
         Tooltip tooltip1 = new Tooltip("Add new Assignment");
         tooltip1.setFont(new Font("Arial", 16));

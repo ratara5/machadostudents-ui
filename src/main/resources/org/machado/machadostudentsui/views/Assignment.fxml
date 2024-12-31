@@ -113,33 +113,27 @@
                             <PropertyValueFactory property="date"/>
                         </cellValueFactory>
                     </TableColumn>
-<!--                    <TableColumn text="Student(s)">-->
-<!--                        <cellValueFactory>-->
-<!--                            <PropertyValueFactory property="studentNames"/>-->
-<!--                        </cellValueFactory>-->
-<!--                    </TableColumn>-->
-                    <TableColumn text="Main Student">
+                    <TableColumn text="Main Student Ppal ID">
                         <cellValueFactory>
-                            <PropertyValueFactory property="mainStudentName"/>
+                            <PropertyValueFactory property="mainStudentPpalId"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Assistant Student">
+                    <TableColumn text="Assistant Student Ppal ID">
                         <cellValueFactory>
-                            <PropertyValueFactory property="assistantStudentName"/>
+                            <PropertyValueFactory property="assistantStudentPpalId"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <!--
-                    <TableColumn text="Main Student Phone">
+                    <TableColumn text="Main Student Aux ID">
                         <cellValueFactory>
-                            <PropertyValueFactory property="mainStudentPhone"/>
+                            <PropertyValueFactory property="mainStudentAuxId"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn text="Assistant Student Phone">
+                    <TableColumn text="Assistant Student Aux ID">
                         <cellValueFactory>
-                            <PropertyValueFactory property="assistantStudentPhone"/>
+                            <PropertyValueFactory property="assistantStudentAuxId"/>
                         </cellValueFactory>
                     </TableColumn>
-                    -->
+
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

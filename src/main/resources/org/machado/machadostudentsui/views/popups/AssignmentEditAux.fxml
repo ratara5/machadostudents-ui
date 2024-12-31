@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<HBox maxHeight="-Infinity"
+      maxWidth="-Infinity"
+      minHeight="-Infinity"
+      minWidth="-Infinity"
+      prefHeight="400.0"
+      prefWidth="600.0"
+      styleClass="content-view"
+      stylesheets="@../style/application.css"
+      xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.machado.machadostudentsui.views.popups.AssignmentEditAux">
+      <VBox styleClass="dialog-icon">
+         <SVGPath content="M24 24.082v-1.649c2.203-1.241 4-4.337 4-7.432 0-4.971 0-9-6-9s-6 4.029-6 9c0 3.096 1.797 6.191 4 7.432v1.649c-6.784 0.555-12 3.888-12 7.918h28c0-4.030-5.216-7.364-12-7.918z" scaleX="3.0" scaleY="3.0" />
+      </VBox>
+      <VBox styleClass="dialog-body" HBox.hgrow="ALWAYS">
+            <VBox>
+              <fx:define>
+                  <ToggleGroup fx:id="roomToggleGroup"/>
+              </fx:define>
+              <RadioButton text="Ppal" toggleGroup="$roomToggleGroup"/>
+              <RadioButton text="Aux" toggleGroup="$roomToggleGroup"/>
+            </VBox>
+            <Label fx:id="title" styleClass="dialog-title" text="Assign Student" />
+            <VBox styleClass="dialog-message-box">
+               <GridPane xmlns="http://javafx.com/javafx"
+                         fx:id="studentsGridPane"
+                         xmlns:fx="http://javafx.com/fxml"
+                         alignment="center"
+                         styleClass="gridPane">
+                  <!--<RowConstraints>
+                     <prefHeight>Region.USE_COMPUTED_SIZE</prefHeight>
+                  </RowConstraints>
+                  <ColumnConstraints>
+                     <prefWidth>Region.USE_COMPUTED_SIZE</prefWidth>
+                  </ColumnConstraints>-->
+                  <Label text="Student's Name" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="label-row-0"/>
+                  <Label text="Assistant's Name" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="label-row-0"/>
+                  <Label text=""
+                         style="-fx-pref-width: 100;"
+                         fx:id="studentNameLabel"
+                         GridPane.rowIndex="1"
+                         GridPane.columnIndex="0"
+                         onDragOver="#handleDragOver"
+                         onDragDropped="#handleDragDropped"/>
+                   <Button
+                           text="Delete"
+                           GridPane.rowIndex="2"
+                           GridPane.columnIndex="0"
+                           onAction="#deleteFromLabel1">
+                       <graphic>
+                           <SVGPath pickOnBounds="true"
+                                    content="M26.5 4h-6.5v-2.5c0-0.825-0.675-1.5-1.5-1.5h-7c-0.825 0-1.5 0.675-1.5 1.5v2.5h-6.5c-0.825 0-1.5 0.675-1.5 1.5v2.5h26v-2.5c0-0.825-0.675-1.5-1.5-1.5zM18 4h-6v-1.975h6v1.975z
+                                    M4 10v20c0 1.1 0.9 2 2 2h18c1.1 0 2-0.9 2-2v-20h-22zM10 28h-2v-14h2v14zM14 28h-2v-14h2v14zM18 28h-2v-14h2v14zM22 28h-2v-14h2v14z" scaleX="0.5" scaleY="0.5" />
+                       </graphic>
+                   </Button>
+                  <Label text=""
+                         style="-fx-pref-width: 100;"
+                         fx:id="assistantNameLabel"
+                         GridPane.rowIndex="1"
+                         GridPane.columnIndex="1"
+                         onDragOver="#handleDragOver"
+                         onDragDropped="#handleDragDropped"/>
+                   <Button text="Delete"
+                           GridPane.rowIndex="2"
+                           GridPane.columnIndex="1"
+                           onAction="#deleteFromLabel2">
+                       <graphic>
+                           <SVGPath pickOnBounds="true"
+                                    content="M26.5 4h-6.5v-2.5c0-0.825-0.675-1.5-1.5-1.5h-7c-0.825 0-1.5 0.675-1.5 1.5v2.5h-6.5c-0.825 0-1.5 0.675-1.5 1.5v2.5h26v-2.5c0-0.825-0.675-1.5-1.5-1.5zM18 4h-6v-1.975h6v1.975z
+                                    M4 10v20c0 1.1 0.9 2 2 2h18c1.1 0 2-0.9 2-2v-20h-22zM10 28h-2v-14h2v14zM14 28h-2v-14h2v14zM18 28h-2v-14h2v14zM22 28h-2v-14h2v14z" scaleX="0.5" scaleY="0.5" />
+                       </graphic>
+                   </Button>
+               </GridPane>
+                <HBox spacing="10">
+                    <CheckBox fx:id="checkbox" onAction="#handleCheckbox"/>
+                    <Label fx:id="sourceLabel" text="Semana Sin Reunión"/>
+                </HBox>
+               <Label fx:id="message" />
+                <HBox fx:id="searchStudentBox" alignment="BOTTOM_CENTER">
+                    <TextField fx:id="name" promptText="Student Name" />
+                    <Button mnemonicParsing="false" onAction="#search" styleClass="wid-120" text="SEARCH" />
+                </HBox>
+               <TableView fx:id="studentForAssignmentTable"
+                          prefHeight="350.0"
+                          prefWidth="500.0"
+                          onDragDetected="#handleDragDetected"
+                          onDragOver="#handleDragOver"
+                          onDragDropped="#handleDragDropped">
+                  <columns>
+                     <TableColumn text="Entity ID">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="studentId"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                      <TableColumn text="Newest Assignment">
+                          <cellValueFactory>
+                              <PropertyValueFactory property="newestAssignmentDate"/>
+                          </cellValueFactory>
+                      </TableColumn>
+                     <TableColumn text="Name">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="name"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <TableColumn text="LastName">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="lastName"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <TableColumn text="Genre">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="genre"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <TableColumn text="PhoneNumber">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="phoneNumber"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <!--<TableColumn text="Address">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="address"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <TableColumn text="Email">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="email"/>
+                        </cellValueFactory>
+                     </TableColumn>-->
+                     <TableColumn text="RolId">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="rolId"/>
+                        </cellValueFactory>
+                     </TableColumn>
+                     <!--<TableColumn text="ContactId">
+                        <cellValueFactory>
+                           <PropertyValueFactory property="contactId"/>
+                        </cellValueFactory>
+                     </TableColumn>-->
+                  </columns>
+                  <columnResizePolicy>
+                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                  </columnResizePolicy>
+               </TableView>
+            </VBox>
+              <HBox fx:id="studentFiltersBox">
+                    <VBox>
+                       <fx:define>
+                          <ToggleGroup fx:id="genderToggleGroup"/>
+                       </fx:define>
+                          <RadioButton text="H" toggleGroup="$genderToggleGroup"/>
+                          <RadioButton text="M" toggleGroup="$genderToggleGroup"/>
+                    </VBox>
+                  <VBox>
+                      <Slider fx:id="rolSlider" min="0" max="6" value="0"/>
+                      <Label fx:id="sliderValueLabel" text="Slide for select a Rol"/>
+                  </VBox>
+                  <HBox>
+                      <Button text="Apply Filters" onAction="#applyFilters">
+                          <graphic>
+                              <SVGPath pickOnBounds="true" content="M16 0c-8.837 0-16 2.239-16 5v3l12 12v10c0 1.105 1.791 2 4 2s4-0.895 4-2v-10l12-12v-3c0-2.761-7.163-5-16-5zM2.95 4.338c0.748-0.427 1.799-0.832 3.040-1.171 2.748-0.752 6.303-1.167 10.011-1.167s7.262 0.414 10.011 1.167c1.241 0.34 2.292 0.745 3.040 1.171 0.494 0.281 0.76 0.519 0.884 0.662-0.124 0.142-0.391 0.38-0.884 0.662-0.748 0.427-1.8 0.832-3.040 1.171-2.748 0.752-6.303 1.167-10.011 1.167s-7.262-0.414-10.011-1.167c-1.24-0.34-2.292-0.745-3.040-1.171-0.494-0.282-0.76-0.519-0.884-0.662 0.124-0.142 0.391-0.38 0.884-0.662z" scaleX="0.5" scaleY="0.5"/>
+                          </graphic>
+                      </Button>
+                      <Button text="Remove Filters" onAction="#clearFilters" >
+                          <graphic>
+                              <SVGPath pickOnBounds="true" content="M27.802 5.197c-2.925-3.194-7.13-5.197-11.803-5.197-8.837 0-16 7.163-16 16h3c0-7.18 5.82-13 13-13 3.844 0 7.298 1.669 9.678 4.322l-4.678 4.678h11v-11l-4.198 4.197z M29 16c0 7.18-5.82 13-13 13-3.844 0-7.298-1.669-9.678-4.322l4.678-4.678h-11v11l4.197-4.197c2.925 3.194 7.13 5.197 11.803 5.197 8.837 0 16-7.163 16-16h-3z" scaleX="0.5" scaleY="0.5"/>
+                          </graphic>
+                      </Button>
+                  </HBox>
+              </HBox>
+            <HBox styleClass="dialog-button-box">
+                  <Button mnemonicParsing="false" onAction="#save" styleClass="wid-120" text="SAVE" />
+                  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#close" styleClass="wid-120" text="CLOSE" />
+            </HBox>
+      </VBox>
+
+</HBox>

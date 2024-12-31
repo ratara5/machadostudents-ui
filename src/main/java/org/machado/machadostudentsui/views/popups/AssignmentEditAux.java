@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class AssignmentEdit {
+public class AssignmentEditAux {
 
     @FXML
     private TableView<Student> studentForAssignmentTable;
@@ -94,11 +94,11 @@ public class AssignmentEdit {
 
         try {
             Stage stage = new Stage(StageStyle.UNDECORATED);
-            FXMLLoader loader = new FXMLLoader(AssignmentEdit.class.getResource("AssignmentEdit.fxml"));
+            FXMLLoader loader = new FXMLLoader(AssignmentEditAux.class.getResource("AssignmentEditAux.fxml"));
             stage.setScene(new Scene(loader.load()));
             stage.initModality(Modality.APPLICATION_MODAL);
 
-            AssignmentEdit controller = loader.getController();
+            AssignmentEditAux controller = loader.getController();
             controller.init(assignment,
                     saveHandler,
                     deleteHandler,
@@ -159,11 +159,11 @@ public class AssignmentEdit {
             studentFiltersBox.setVisible(false);
         }
 
-        studentNameLabel.setUserData("mainStudent"); //In room 'Ppal'
-        assistantNameLabel.setUserData("assistantStudent"); //In room 'Ppal'
+        studentNameLabel.setUserData("mainStudent"); //In room 'Aux'
+        assistantNameLabel.setUserData("assistantStudent"); //In room 'Aux'
 
-        studentNameLabel.setId(null); //In room 'Ppal'
-        assistantNameLabel.setId(null); //In room 'Ppal'
+        studentNameLabel.setId(null); //In room 'Aux'
+        assistantNameLabel.setId(null); //In room 'Aux'
 
         ////Fill name students labels
         for (Object node : studentsGridPane.getChildren()) {
@@ -174,7 +174,7 @@ public class AssignmentEdit {
                     StudentsAssignment studentsAssignment = listStudentsAssignment.get(i);
                     Student student = listStudentsAssignment.get(i).getStudent();
                     if (Objects.equals(studentsAssignment.getRolStudent(), label.getUserData())
-                            && Objects.equals(studentsAssignment.getRoom(), "Ppal")) {
+                            && Objects.equals(studentsAssignment.getRoom(), "Aux")) {
                         actualStudentId = studentsAssignment.getStudentId();
                         label.setId(studentsAssignment.getStudentId() + "");
                         label.setText(student.getName() + " " + student.getLastName());
