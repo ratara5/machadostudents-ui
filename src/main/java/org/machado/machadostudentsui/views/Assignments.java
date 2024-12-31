@@ -112,7 +112,7 @@ public class Assignments
             int studentId = idExtractor.apply(assignment);
 
             Student student = getStudentById(studentId);
-            String name = (student != null) ? student.getName() : "NA";
+            String name = (student != null) ? String.format("%s %s", student.getName(), student.getLastName()) : "NA";
             return new SimpleStringProperty(name);
         });
         return column;
@@ -142,12 +142,24 @@ public class Assignments
 
         //TODO: Order! before
 
-        assignmentTable.getColumns().addAll(
-                createStudentColumn("mainPpalName", Assignment::getMainStudentPpalId),
-                createStudentColumn("assistantPpalName", Assignment::getAssistantStudentPpalId),
-                createStudentColumn("mainAuxName", Assignment::getMainStudentAuxId),
-                createStudentColumn("assistantAuxName", Assignment::getAssistantStudentAuxId)
-        );
+
+        TableColumn<Assignment, String> mainPpalColumn = createStudentColumn("mainPpalName", Assignment::getMainStudentPpalId);
+        TableColumn<Assignment, String> assistantPpalColumn = createStudentColumn("assistantPpalName", Assignment::getAssistantStudentPpalId);
+        TableColumn<Assignment, String> mainAuxColumn = createStudentColumn("mainAuxName", Assignment::getMainStudentAuxId);
+        TableColumn<Assignment, String> assistantAuxColumn = createStudentColumn("assistantAuxName", Assignment::getAssistantStudentAuxId);
+
+        // Crear las columnas grupales
+        TableColumn<Assignment, String> ppalGroupColumn = new TableColumn<>("Ppal");
+        ppalGroupColumn.getColumns().addAll(mainPpalColumn, assistantPpalColumn);
+
+        TableColumn<Assignment, String> auxGroupColumn = new TableColumn<>("Aux");
+        auxGroupColumn.getColumns().addAll(mainAuxColumn, assistantAuxColumn);
+
+        // Agregar las columnas grupales al TableView
+        assignmentTable.getColumns().addAll(ppalGroupColumn, auxGroupColumn);
+
+
+
         /*
         //Add duplicates
         ObservableList<Assignment> duplicates = FXCollections.observableArrayList();

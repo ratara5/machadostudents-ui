@@ -84,15 +84,11 @@
         </HBox>-->
         <VBox alignment="CENTER">
             <padding>
-                <Insets top="10"/>
+                <Insets top="20"/>
             </padding>
             <TableView fx:id="assignmentTable" prefHeight="550.0" prefWidth="1000.0">
                 <columns>
-                    <TableColumn text="AssignmentID">
-                       <cellValueFactory>
-                            <PropertyValueFactory property="assignmentId"/>
-                       </cellValueFactory>
-                    </TableColumn>
+
                     <TableColumn text="Reading">
                         <cellValueFactory>
                             <PropertyValueFactory property="reading"/>
@@ -111,26 +107,6 @@
                     <TableColumn fx:id="dateColumn" text="Date">
                         <cellValueFactory>
                             <PropertyValueFactory property="date"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Main Student Ppal ID">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="mainStudentPpalId"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Assistant Student Ppal ID">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="assistantStudentPpalId"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Main Student Aux ID">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="mainStudentAuxId"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Assistant Student Aux ID">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="assistantStudentAuxId"/>
                         </cellValueFactory>
                     </TableColumn>
 

@@ -68,15 +68,22 @@
 	-fx-background-color: transparent;
 }
 
-.table-view .column-header,
-.table-view .column-header-background
- {
+.table-view .column-header-background {
 	-fx-background-color: secondary;
-	-fx-pref-height: 30px;
 }
 
-.table-view .column-header .label{
+.table-view .column-header {
+    -fx-alignment: center;
+    -fx-pref-height: 30px;
+    -fx-background-color: secondary;
+}
+
+
+
+.table-view .column-header .label {
 	-fx-text-fill: secondary-light;
+	-fx-alignment: center;
+
 }
 
 
