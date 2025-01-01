@@ -352,8 +352,10 @@ public class Assignments
 
             // Grouping data
             Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(sortedAssignments); //filteredAssignments
+            // Get ListStudentsAssignments
+            List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
             // Generate PDF
-            PdfAssignmentManager.generatePDF(groupedData);
+            PdfAssignmentManager.generatePDF(groupedData, listStudentsAssignment);
 
         }
 
