@@ -128,21 +128,6 @@ public class Assignments
         Mono<List<Assignment>> assignmentsAll = webClientMachado.assignmentsAll();
         ObservableList<Assignment> observableAssignmentList = FXCollections.observableList(assignmentsAll.block());
 
-        // Show Assignments for the day 1 of the next month
-        Predicate<Assignment> initialFilter = assignment -> {
-            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
-        };
-        filteredAssignments = new FilteredList<>(observableAssignmentList, initialFilter);
-
-        sortedAssignments = this.sorting(filteredAssignments);
-
-        assignmentTable.getItems().clear();
-        assignmentTable.setItems(sortedAssignments);
-
-
-        //TODO: Order! before
-
-
         TableColumn<Assignment, String> mainPpalColumn = createStudentColumn("mainPpalName", Assignment::getMainStudentPpalId);
         TableColumn<Assignment, String> assistantPpalColumn = createStudentColumn("assistantPpalName", Assignment::getAssistantStudentPpalId);
         TableColumn<Assignment, String> mainAuxColumn = createStudentColumn("mainAuxName", Assignment::getMainStudentAuxId);
@@ -158,32 +143,24 @@ public class Assignments
         // Agregar las columnas grupales al TableView
         assignmentTable.getColumns().addAll(ppalGroupColumn, auxGroupColumn);
 
+        assignmentTable.setItems(observableAssignmentList);
 
 
-        /*
-        //Add duplicates
-        ObservableList<Assignment> duplicates = FXCollections.observableArrayList();
-        List<String> toDuplicate = Arrays.asList("PRESIDENCIA", "PRESIDENTE", "3. Lectura de la Biblia", "SEAMOS MEJORES MAESTROS");
-        for (Assignment assignment : observableAssignmentList) {
-            if (toDuplicate.contains(assignment.getSection()) || toDuplicate.contains(assignment.getName())) {  // Condición para duplica
-                // Añadir el duplicado a la lista
-                // Modificar los campos seleccionados, sin crear una nueva instancia
-                Assignment duplicate = new Assignment(assignment.getAssignmentId(),
-                        assignment.getSection(),assignment.getName(),
-                        assignment.getDate(), "", "", "", ""); // Referencia al mismo objeto
+        //Get new observable list that includes the columns made with FactoryCell
+        ObservableList<Assignment> observableListFull = FXCollections.observableArrayList(assignmentTable.getItems());
+        FilteredList<Assignment> filteredAssignments = new FilteredList<>(observableListFull);
+        // Show Assignments for the day 1 of the next month
+        Predicate<Assignment> initialFilter = assignment -> {
+            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+        };
+        filteredAssignments.setPredicate(initialFilter);
 
-                // Añadir el duplicado a la lista (sin crear una nueva instancia)
-                duplicates.add(duplicate);
+        //Order
+        sortedAssignments = this.sorting(filteredAssignments);
+        assignmentTable.getItems().clear();
+        assignmentTable.setItems(sortedAssignments);
 
-            }
-        }
-
-        // Añadir los duplicados a la lista original
-        observableAssignmentList.addAll(duplicates);
-        */
-        //TODO: Show Assignments of the next month
-
-        // Asignar la lista a la TableView
+        /*// Asignar la lista a la TableView
         assignmentTable.setItems(observableAssignmentList);
 
         // Order by Date Column
@@ -196,7 +173,7 @@ public class Assignments
         assignmentTable.getSortOrder().add(assignmentName);
         assignmentName.setSortType(TableColumn.SortType.ASCENDING);
 
-        assignmentTable.sort(); // Apply order
+        assignmentTable.sort(); // Apply order*/
 
         MenuItem edit = new MenuItem("Assign Student");
         edit.setOnAction(event -> {
