@@ -148,12 +148,13 @@ public class Assignments
 
         //Get new observable list that includes the columns made with FactoryCell
         ObservableList<Assignment> observableListFull = FXCollections.observableArrayList(assignmentTable.getItems());
-        FilteredList<Assignment> filteredAssignments = new FilteredList<>(observableListFull);
+        filteredAssignments = new FilteredList<>(observableListFull);
         // Show Assignments for the day 1 of the next month
         Predicate<Assignment> initialFilter = assignment -> {
             return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
         filteredAssignments.setPredicate(initialFilter);
+
 
         //Order
         sortedAssignments = this.sorting(filteredAssignments);
@@ -393,6 +394,7 @@ public class Assignments
 
             PdfAssignmentManager.fillForms(filteredAssignments, listStudentsAssignment);
 
+
             // Convert PDFs in Images
             try {
                 String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/pdf_to_image.py";
@@ -421,9 +423,9 @@ public class Assignments
             }
 
             //Exclude weeks without meet
-            /*int count = (int) assignments.stream()
-                    .filter(obj -> !obj.isWeekWithoutMeet())
-                    .count();*/
+            //int count = (int) assignments.stream()
+                    //.filter(obj -> !obj.isWeekWithoutMeet())
+                    //.count();
 
             if(Objects.equals(toCompareCountGenerated, Integer.toString(filteredAssignments.size()))){ //assignments.size()
 

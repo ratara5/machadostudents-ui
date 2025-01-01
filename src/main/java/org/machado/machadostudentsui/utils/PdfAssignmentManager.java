@@ -302,16 +302,99 @@ public class PdfAssignmentManager {
 
     }
 
+    public static void fillFieldsForm(int i, Assignment assignment, List<StudentsAssignment> listStudentAssignmentRoom, String room) throws IOException {
+        // Path to template form: Made manually
+        String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
+
+        Optional<Student> mainStudent = listStudentAssignmentRoom.stream()
+                .filter(student -> "mainStudent".equals(student.getRolStudent()))
+                .map(StudentsAssignment::getStudent)
+                .findFirst();
+
+
+        if (!mainStudent.isPresent()) {
+            return;
+        }
+
+        // Ever present, as "mainStudent" is the DEFAULT value in rol_student
+        String nameMainStudent = mainStudent.get().getName() + " " + mainStudent.get().getLastName() ;
+        String phoneMainStudent = mainStudent.get().getPhoneNumber();
+
+        // Output path filled form
+        String outputPath = "../machadostudents-ui/assignments/"
+                + phoneMainStudent.replaceAll("\\s", "")
+                //+ nameMainStudent.replaceAll("\\s", "")
+                + "-"
+                + String.valueOf(i)
+                + ".pdf";
+
+        // Create a new document template based
+        PdfReader reader = new PdfReader(templateForm);
+        PdfWriter writer = new PdfWriter(outputPath);
+        PdfDocument pdfDocument = new PdfDocument(reader, writer);
+        PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDocument, true);
+
+        float FONT_SIZE = 5f;
+
+        // Fill fields
+        form.getField("900_1_Text_SanSerif").setValue(nameMainStudent).setFontSize(FONT_SIZE);
+        //// Fill assistant correctly in form
+        Optional<Student> assistantStudent = listStudentAssignmentRoom.stream()
+                .filter(student -> "assistantStudent".equals(student.getRolStudent()))
+                .map(StudentsAssignment::getStudent)
+                .findFirst();
+        if(assistantStudent.isPresent()) {
+            //Student assistantStudent = getStudentById(assistantStudentId.orElse(0));
+            String nameAssistantStudent = assistantStudent.get().getName() + " " + assistantStudent.get().getLastName() ;
+            form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
+        } else {
+            String nameAssistantStudent = "";
+            form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
+        }
+        //// Fill other fields in form
+        //form.getField("900_3_Text_SanSerif").setValue(assignment.getDate().toString()).setFontSize(FONT_SIZE);
+        String yearNumber = assignment.getDate().toString().substring(0,4);
+        String monthNumber = assignment.getDate().toString().substring(5,7);
+        String dayNumber = assignment.getDate().toString().substring(8,10);
+
+        String monthName = FormatUtils.monthOfNumber.getOrDefault(monthNumber, "Mes").substring(0,3);
+        form.getField("900_3_Text_SanSerif").setValue( dayNumber + " de " + monthName + " de " + yearNumber).setFontSize(FONT_SIZE);
+        String assignmentName = assignment.getName(); //.substring(0,20); //0,54
+        form.getField("900_4_Text_SanSerif").setValue(assignmentName).setFontSize(FONT_SIZE);
+
+        form.getField("900_5_CheckBox").setValue("Off");
+        form.getField("900_6_CheckBox").setValue("Off");
+        if ("Ppal".equals(room)) {
+            form.getField("900_5_CheckBox")
+
+                    .setCheckType(PdfFormField.TYPE_CHECK)
+                    .setValue("Yes")
+                    .setBackgroundColor(new DeviceRgb(0, 255, 0)); // Yet, isn't possible modify any checkbox property
+        } else if ("Aux".equals(room)){
+            form.getField("900_6_CheckBox")
+
+                    .setCheckType(PdfFormField.TYPE_CHECK)
+                    .setValue("Yes")
+                    .setBackgroundColor(new DeviceRgb(0, 255, 0));
+        }
+
+        // Close PDF document
+        form.flattenFields(); // Permanent changes
+        pdfDocument.close();
+
+        // In DialogBox
+        System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputPath);
+
+    }
+
     public static void fillForms(List<Assignment> assignments, List<StudentsAssignment> listStudentsAssignment) { //public static void
 
         try {
             int i = 0;
             for (Assignment assignment : assignments) {
-                // Path to template form: Made manually
-                String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
 
                 // Assignments without students will not be generated
-                if(!assignment.isWeekWithoutMeet() && assignment.getMainStudentName() != null) {
+                if(!assignment.isWeekWithoutMeet()) { //&& assignment.getMainStudentName() != null
 
                     //filteredListStudentsAssignment contains two elements max
                     List<StudentsAssignment> filteredListStudentsAssignment = listStudentsAssignment
@@ -319,7 +402,21 @@ public class PdfAssignmentManager {
                             .filter(x->x.getAssignmentId() == assignment.getAssignmentId())
                             .collect(Collectors.toList());
 
-                    Optional<Student> mainStudent = filteredListStudentsAssignment.stream()
+                    List<StudentsAssignment> listStudentsAssignmentPpal = filteredListStudentsAssignment
+                            .stream()
+                            .filter(x->"Ppal".equals(x.getRoom()))
+                            .collect(Collectors.toList());
+                    //if (studentAssignmentPpal.isPresent()) {;
+                    fillFieldsForm(i, assignment, listStudentsAssignmentPpal, "Ppal");
+
+                    List<StudentsAssignment> listStudentAssignmentAux = filteredListStudentsAssignment
+                            .stream()
+                            .filter(x->"Aux".equals(x.getRoom()))
+                            .collect(Collectors.toList());
+                    //if (studentAssignmentAux.isPresent()) {;
+                    fillFieldsForm(i, assignment, listStudentAssignmentAux, "Aux");
+
+                    /*Optional<Student> mainStudent = roomListStudentsAssignment.stream()
                             .filter(student -> "mainStudent".equals(student.getRolStudent()))
                             .map(StudentsAssignment::getStudent)
                             .findFirst();
@@ -347,7 +444,7 @@ public class PdfAssignmentManager {
                     // Fill fields
                     form.getField("900_1_Text_SanSerif").setValue(nameMainStudent).setFontSize(FONT_SIZE);
                     //// Fill assistant correctly in form
-                    Optional<Student> assistantStudent = filteredListStudentsAssignment.stream()
+                    Optional<Student> assistantStudent = roomListStudentsAssignment.stream()
                             .filter(student -> "assistantStudent".equals(student.getRolStudent()))
                             .map(StudentsAssignment::getStudent)
                             .findFirst();
@@ -369,16 +466,30 @@ public class PdfAssignmentManager {
                     form.getField("900_3_Text_SanSerif").setValue( dayNumber + " de " + monthName + " de " + yearNumber).setFontSize(FONT_SIZE);
                     String assignmentName = assignment.getName(); //.substring(0,20); //0,54
                     form.getField("900_4_Text_SanSerif").setValue(assignmentName).setFontSize(FONT_SIZE);
-                    form.getField("900_5_CheckBox")
+
+                    if ("Ppal".equals(room)) {
+                        form.getField("900_5_CheckBox")
+
                             .setCheckType(PdfFormField.TYPE_CHECK)
                             .setValue("Yes")
                             .setBackgroundColor(new DeviceRgb(0, 255, 0)); // Yet, isn't possible modify any checkbox property
+                    } else {
+                        form.getField("900_6_CheckBox")
+
+                            .setCheckType(PdfFormField.TYPE_CHECK)
+                            .setValue("Yes")
+                            .setBackgroundColor(new DeviceRgb(0, 255, 0));
+                    }
+
 
                     // Close PDF document
                     pdfDocument.close();
 
                     // In DialogBox
                     System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputPath);
+
+                    */
+
 
                 }
                 i++;
