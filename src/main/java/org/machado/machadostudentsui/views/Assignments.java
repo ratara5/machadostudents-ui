@@ -19,7 +19,9 @@ import org.machado.machadostudentsclient.WebClientMachado;
 import org.machado.machadostudentsclient.entity.Assignment;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
-import org.machado.machadostudentsui.utils.PdfAssignmentManager;
+import org.machado.machadostudentsui.pdfmanager.PdfIndividual;
+import org.machado.machadostudentsui.pdfmanager.PdfMonthlyOverview;
+import org.machado.machadostudentsui.utils.SearchUtils;
 import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
 import org.machado.machadostudentsui.views.popups.AssignmentEditAux;
@@ -351,11 +353,11 @@ public class Assignments
             assignmentTable.sort();
 
             // Grouping data
-            Map<LocalDate, Map<String, List<Assignment>>> groupedData = PdfAssignmentManager.groupData(sortedAssignments); //filteredAssignments
+            Map<LocalDate, Map<String, List<Assignment>>> groupedData = SearchUtils.groupData(sortedAssignments); //filteredAssignments
             // Get ListStudentsAssignments
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
             // Generate PDF
-            PdfAssignmentManager.generatePDF(groupedData, listStudentsAssignment);
+            PdfMonthlyOverview.generatePDF(groupedData, listStudentsAssignment);
 
         }
 
@@ -394,7 +396,7 @@ public class Assignments
             filteredAssignments.setPredicate(searchFilter);
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
 
-            PdfAssignmentManager.fillForms(filteredAssignments, listStudentsAssignment);
+            PdfIndividual.fillForms(filteredAssignments, listStudentsAssignment);
 
 
             // Convert PDFs in Images

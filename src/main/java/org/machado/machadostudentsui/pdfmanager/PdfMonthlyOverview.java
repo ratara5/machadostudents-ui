@@ -1,13 +1,10 @@
-package org.machado.machadostudentsui.utils;
+package org.machado.machadostudentsui.pdfmanager;
 
-import com.itextpdf.forms.PdfAcroForm;
-import com.itextpdf.forms.fields.PdfFormField;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.colors.WebColors;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
@@ -20,17 +17,17 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import org.machado.machadostudentsclient.entity.Assignment;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
+import org.machado.machadostudentsui.utils.SearchUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.machado.machadostudentsui.utils.FormatUtils.meses;
 
-public class PdfAssignmentManager {
+public class PdfMonthlyOverview {
 
     private static Map<Integer, Map<String, String>> styleMap = new HashMap<>();
 
@@ -105,24 +102,6 @@ public class PdfAssignmentManager {
     }
 
     private Consumer<Student> getOneHandler;
-    public static Map<LocalDate, Map<String, List<Assignment>>> groupData(List<Assignment> assignments) {
-
-        Map<LocalDate, Map<String, List<Assignment>>> groupedData = new LinkedHashMap<>();
-        for (Assignment assignment : assignments) {
-            // Group by date
-            LocalDate date = assignment.getDate();
-            groupedData.putIfAbsent(date, new LinkedHashMap<>());
-
-            // Group by section in each date
-            String section = assignment.getSection();
-            groupedData.get(date).putIfAbsent(section, new ArrayList<>());
-
-            // Add record to list
-            groupedData.get(date).get(section).add(assignment);
-        }
-        return groupedData;
-
-    }
 
     public static <K, V> K getFirstKey(Map<K, V> map) {
         // Get iterator from key set
@@ -256,17 +235,17 @@ public class PdfAssignmentManager {
                         }
 
                         // Retrieve studentsAssignments in Ppal and Aux rooms
-                        Map<String, List<StudentsAssignment>> result = getStudentsAssignmentsByRoom(assignment, listStudentsAssignment);
+                        Map<String, List<StudentsAssignment>> result = SearchUtils.getStudentsAssignmentsByRoom(assignment, listStudentsAssignment);
                         List<StudentsAssignment> listStudentAssignmentPpal = result.get("Ppal");
                         List<StudentsAssignment> listStudentAssignmentAux = result.get("Aux");
 
                         // Retrieve students in Ppal room
-                        Optional<Student> mainStudentPpal = getStudentInAssignment(listStudentAssignmentPpal, "mainStudent");
-                        Optional<Student> assistantStudentPpal = getStudentInAssignment(listStudentAssignmentPpal, "assistantStudent");
+                        Optional<Student> mainStudentPpal = SearchUtils.getStudentInAssignment(listStudentAssignmentPpal, "mainStudent");
+                        Optional<Student> assistantStudentPpal = SearchUtils.getStudentInAssignment(listStudentAssignmentPpal, "assistantStudent");
 
                         // Retrieve students in Aux room
-                        Optional<Student> mainStudentAux = getStudentInAssignment(listStudentAssignmentAux, "mainStudent");
-                        Optional<Student> assistantStudentAux = getStudentInAssignment(listStudentAssignmentAux, "assistantStudent");
+                        Optional<Student> mainStudentAux = SearchUtils.getStudentInAssignment(listStudentAssignmentAux, "mainStudent");
+                        Optional<Student> assistantStudentAux = SearchUtils.getStudentInAssignment(listStudentAssignmentAux, "assistantStudent");
 
 
                         // Add row to table
@@ -326,152 +305,6 @@ public class PdfAssignmentManager {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
-        }
-
-    }
-
-    public static Map<String, List<StudentsAssignment>> getStudentsAssignmentsByRoom(Assignment assignment, List<StudentsAssignment> listStudentsAssignment) {
-
-        // Filter by assignment id
-        List<StudentsAssignment> filteredListStudentsAssignment = listStudentsAssignment
-                .stream()
-                .filter(x -> x.getAssignmentId() == assignment.getAssignmentId())
-                .collect(Collectors.toList());
-
-        // Filter by Ppal room
-        List<StudentsAssignment> listStudentsAssignmentPpal = filteredListStudentsAssignment
-                .stream()
-                .filter(x -> "Ppal".equals(x.getRoom()))
-                .collect(Collectors.toList());
-
-        // Filter by Aux room
-        List<StudentsAssignment> listStudentsAssignmentAux = filteredListStudentsAssignment
-                .stream()
-                .filter(x -> "Aux".equals(x.getRoom()))
-                .collect(Collectors.toList());
-
-        // Return results on a map
-        Map<String, List<StudentsAssignment>> result = new HashMap<>();
-        result.put("Ppal", listStudentsAssignmentPpal);
-        result.put("Aux", listStudentsAssignmentAux);
-
-        return result;
-    }
-
-    public static Optional<Student> getStudentInAssignment (List<StudentsAssignment> listStudentAssignmentRoom, String rolStudent) {
-
-        Optional<Student> studentInAssignment = listStudentAssignmentRoom.stream()
-                .filter(student -> rolStudent.equals(student.getRolStudent()))
-                .map(StudentsAssignment::getStudent)
-                .findFirst();
-
-        return studentInAssignment;
-    }
-
-    public static void fillFieldsForm(int i, Assignment assignment, List<StudentsAssignment> listStudentAssignmentRoom, String room) throws IOException {
-        // Path to template form: Made manually
-        String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
-
-        // Retrieve students by room
-        Optional<Student> mainStudent = getStudentInAssignment(listStudentAssignmentRoom, "mainStudent");
-        Optional<Student> assistantStudent = getStudentInAssignment(listStudentAssignmentRoom, "assistantStudent");
-
-        if (!mainStudent.isPresent()) {
-            return;
-        }
-
-        // Ever present, as "mainStudent" is the DEFAULT value in rol_student
-        String nameMainStudent = mainStudent.get().getName() + " " + mainStudent.get().getLastName() ;
-        String phoneMainStudent = mainStudent.get().getPhoneNumber();
-
-        // Output path filled form
-        String outputPath = "../machadostudents-ui/assignments/"
-                + phoneMainStudent.replaceAll("\\s", "")
-                //+ nameMainStudent.replaceAll("\\s", "")
-                + "-"
-                + String.valueOf(i)
-                + ".pdf";
-
-        // Create a new document template based
-        PdfReader reader = new PdfReader(templateForm);
-        PdfWriter writer = new PdfWriter(outputPath);
-        PdfDocument pdfDocument = new PdfDocument(reader, writer);
-        PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDocument, true);
-
-        float FONT_SIZE = 5f;
-
-        // Fill fields
-        form.getField("900_1_Text_SanSerif").setValue(nameMainStudent).setFontSize(FONT_SIZE);
-
-        //// Fill assistant name
-        String nameAssistantStudent;
-        if(assistantStudent.isPresent()) {
-            //Student assistantStudent = getStudentById(assistantStudentId.orElse(0));
-            nameAssistantStudent = assistantStudent.get().getName() + " " + assistantStudent.get().getLastName();
-        } else {
-            nameAssistantStudent = "";
-        }
-        form.getField("900_2_Text_SanSerif").setValue(nameAssistantStudent).setFontSize(FONT_SIZE);
-        //// Fill other fields in form
-        //form.getField("900_3_Text_SanSerif").setValue(assignment.getDate().toString()).setFontSize(FONT_SIZE);
-        String yearNumber = assignment.getDate().toString().substring(0,4);
-        String monthNumber = assignment.getDate().toString().substring(5,7);
-        String dayNumber = assignment.getDate().toString().substring(8,10);
-
-        String monthName = FormatUtils.monthOfNumber.getOrDefault(monthNumber, "Mes").substring(0,3);
-        form.getField("900_3_Text_SanSerif").setValue( dayNumber + " de " + monthName + " de " + yearNumber).setFontSize(FONT_SIZE);
-        String assignmentName = assignment.getName(); //.substring(0,20); //0,54
-        form.getField("900_4_Text_SanSerif").setValue(assignmentName).setFontSize(FONT_SIZE);
-
-        //// Fill room
-        form.getField("900_5_CheckBox").setValue("Off");
-        form.getField("900_6_CheckBox").setValue("Off");
-        if ("Ppal".equals(room)) {
-            form.getField("900_5_CheckBox")
-
-                    .setCheckType(PdfFormField.TYPE_CHECK)
-                    .setValue("Yes")
-                    .setBackgroundColor(new DeviceRgb(0, 255, 0)); // Yet, isn't possible modify any checkbox property
-        } else if ("Aux".equals(room)){
-            form.getField("900_6_CheckBox")
-
-                    .setCheckType(PdfFormField.TYPE_CHECK)
-                    .setValue("Yes")
-                    .setBackgroundColor(new DeviceRgb(0, 255, 0));
-        }
-
-        // Close PDF document
-        form.flattenFields(); // Permanent changes
-        pdfDocument.close();
-
-        // In DialogBox
-        System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputPath);
-
-    }
-
-    public static void fillForms(List<Assignment> assignments, List<StudentsAssignment> listStudentsAssignment) { //public static void
-
-        try {
-            int i = 0;
-            for (Assignment assignment : assignments) {
-
-                // Assignments without students will not be generated
-                if(!assignment.isWeekWithoutMeet()) { //&& assignment.getMainStudentName() != null
-
-                    // Retrieve StudentAssignments by room
-                    Map<String, List<StudentsAssignment>> result = getStudentsAssignmentsByRoom(assignment, listStudentsAssignment);
-
-                    List<StudentsAssignment> listStudentAssignmentPpal = result.get("Ppal");
-                    fillFieldsForm(i, assignment, listStudentAssignmentPpal, "Ppal");
-
-                    List<StudentsAssignment> listStudentAssignmentAux = result.get("Aux");
-                    fillFieldsForm(i, assignment, listStudentAssignmentAux, "Aux");
-
-                }
-                i++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
     }
