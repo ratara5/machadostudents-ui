@@ -21,7 +21,8 @@ public class PdfIndividual {
 
     public static void fillFieldsForm(int i, Assignment assignment, List<StudentsAssignment> listStudentAssignmentRoom, String room) throws IOException {
         // Path to template form: Made manually
-        String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
+        //String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
+        String templateForm = PdfIndividual.class.getClassLoader().getResource("templates/FormatoAsignacionVMC.pdf").toString();
 
         // Retrieve students by room
         Optional<Student> mainStudent = SearchUtils.getStudentInAssignment(listStudentAssignmentRoom, "mainStudent");
@@ -36,7 +37,8 @@ public class PdfIndividual {
         String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
         // Output path filled form
-        String outputPath = "../machadostudents-ui/assignments/"
+        //String outputPath = "../machadostudents-ui/assignments/"
+        String outputPath = System.getProperty("user.dir") + "/output/assignments/"
                 + phoneMainStudent.replaceAll("\\s", "")
                 //+ nameMainStudent.replaceAll("\\s", "")
                 + "-"

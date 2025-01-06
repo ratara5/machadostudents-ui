@@ -29,10 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -401,9 +398,23 @@ public class Assignments
 
             // Convert PDFs in Images
             try {
-                String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/pdf_to_image.py";
-                String command = "python3.8 " + scriptPath;
-                Process process = Runtime.getRuntime().exec(command);
+
+                String scriptPath = System.getProperty("user.dir") + "/output_scripts/convert_pdfs/pdf_to_image.py";
+                String venvPath = System.getProperty("user.dir") + "/output_scripts/convert_pdfs/venv/bin/activate";
+
+                // Comando para ejecutar en la shell
+                String command = " source " + venvPath + " && python3.8 " + scriptPath; //python3.8 es venv/bin/python ?
+
+                // Usar ProcessBuilder para ejecutar el comando
+                ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+
+                // Configurar el directorio de trabajo esperado
+                File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal directorio de Java
+                System.out.println(workingDir);
+                processBuilder.directory(workingDir); // Establecer el directorio de trabajo
+
+                Process process = processBuilder.start();
+                process.waitFor();
 
                 // Capture output of process
                 InputStream inputStream = process.getInputStream();
@@ -412,10 +423,11 @@ public class Assignments
                 // Read line by line output of process
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
                     toCompareCountGenerated = line;
                 }
 
-                process.waitFor();
+
                 int outputCode = process.exitValue();
                 if (outputCode == 0) {
                     System.out.println("Script executed succesfully");
@@ -457,9 +469,30 @@ public class Assignments
 
         // Send Images Assignments
         try {
+            /*
             String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/send_assignments/pywhat.py";
             String command = "python3.8 " + scriptPath;
             Process process = Runtime.getRuntime().exec(command);
+
+            // Capture output of process
+            InputStream inputStream = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            */
+            String scriptPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/index.js";
+            String authPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/.wwebjs_auth";
+
+            // Comando para ejecutar en la shell
+            String command = "WWEBSJS_AUTH_PATH=" + authPath + " node " + scriptPath;
+
+            // Usar ProcessBuilder para ejecutar el comando
+            ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+
+            // Configurar el directorio de trabajo esperado
+            File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal en el mismo directorio de Java
+            processBuilder.directory(workingDir); // Establecer el directorio de trabajo
+
+            Process process = processBuilder.start();
+            process.waitFor();
 
             // Capture output of process
             InputStream inputStream = process.getInputStream();
@@ -468,6 +501,7 @@ public class Assignments
             // Read line by line output of process
             String line;
             while ((line = reader.readLine()) != null) {
+                System.out.println(line);
                 toCompareCountSent = line;
             }
 
