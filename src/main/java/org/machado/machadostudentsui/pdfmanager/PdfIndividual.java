@@ -12,6 +12,7 @@ import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.utils.FormatUtils;
 import org.machado.machadostudentsui.utils.SearchUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,16 @@ public class PdfIndividual {
         String nameMainStudent = mainStudent.get().getName() + " " + mainStudent.get().getLastName() ;
         String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
+        // Create output directory
+        String outputDir = System.getProperty("user.dir") + "/output/assignments/";
+        File outputFolder = new File(outputDir);
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
+
         // Output path filled form
         //String outputPath = "../machadostudents-ui/assignments/"
-        String outputPath = System.getProperty("user.dir") + "/output/assignments/"
+        String outputPath = outputDir
                 + phoneMainStudent.replaceAll("\\s", "")
                 //+ nameMainStudent.replaceAll("\\s", "")
                 + "-"

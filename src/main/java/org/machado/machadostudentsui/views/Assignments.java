@@ -399,7 +399,7 @@ public class Assignments
             // Convert PDFs in Images
             try {
 
-                String scriptPath = System.getProperty("user.dir") + "/output_scripts/convert_pdfs/pdf_to_image.py";
+                String scriptPath = System.getProperty("user.dir")  + "/output_scripts/convert_pdfs/pdf_to_image.py";
                 String venvPath = System.getProperty("user.dir") + "/output_scripts/convert_pdfs/venv/bin/activate";
 
                 // Comando para ejecutar en la shell
