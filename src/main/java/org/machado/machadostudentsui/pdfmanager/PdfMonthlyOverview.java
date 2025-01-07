@@ -154,9 +154,9 @@ public class PdfMonthlyOverview {
 
         getColorsMap();
 
-        try (PdfWriter pdfWriter = new PdfWriter("../machadostudents-ui/output.pdf");
+        try (PdfWriter pdfWriter = new PdfWriter( "./output/overview/output.pdf");
              PdfDocument pdfDoc = new PdfDocument(pdfWriter);
-             Document document = new Document(pdfDoc)) {
+             Document document = new Document(pdfDoc)) {;
 
             document.setCharacterSpacing(0.6f);
 
