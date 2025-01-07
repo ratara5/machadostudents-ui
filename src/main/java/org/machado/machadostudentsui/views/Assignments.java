@@ -478,14 +478,45 @@ public class Assignments
             InputStream inputStream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             */
+
+            /*ProcessBuilder checkNode = new ProcessBuilder("bash", "-c", "which node");
+            Process nodeProcess = checkNode.start();
+            nodeProcess.waitFor();
+            InputStream nodeInputStream = nodeProcess.getInputStream();
+            BufferedReader nodeReader = new BufferedReader(new InputStreamReader(nodeInputStream));
+            String nodePath = nodeReader.readLine();
+            System.out.println("Node.js is located at: " + nodePath);*/
+
+            //Buscar ubicación de node en linux
+            ProcessBuilder checkNode = new ProcessBuilder("bash", "-c", "which node");
+            checkNode.redirectErrorStream(true); // Captura errores también
+            Process nodeProcess = checkNode.start();
+            InputStream nodeInputStream = nodeProcess.getInputStream();
+            BufferedReader nodeReader = new BufferedReader(new InputStreamReader(nodeInputStream));
+            String nodePath = nodeReader.readLine(); // Solo lee la primera línea
+            int exitCode = nodeProcess.waitFor();
+            //// Validar salida
+            if (exitCode != 0 || nodePath == null || nodePath.isEmpty()) {
+                // Fallback si no se encuentra 'node'
+                nodePath = "~/.nvm/versions/node/v20.11.0/bin/node";
+                System.out.println("Node.js path fallback: " + nodePath);
+            } else {
+                System.out.println("Node.js is located at: " + nodePath);
+            }
+
+            System.out.println("The user.dir is: " + System.getProperty("user.dir"));
             String scriptPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/index.js";
             String authPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/.wwebjs_auth";
 
             // Comando para ejecutar en la shell
-            String command = "WWEBSJS_AUTH_PATH=" + authPath + " node " + scriptPath;
+            String command = "WWEBJS_AUTH_PATH=" + authPath + " " + nodePath + " " + scriptPath; //
 
             // Usar ProcessBuilder para ejecutar el comando
             ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+
+            // Asignar node al Path del Process
+            Map<String, String> environment = processBuilder.environment();
+            environment.put("PATH", environment.get("PATH") + nodePath);
 
             // Configurar el directorio de trabajo esperado
             File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal en el mismo directorio de Java
@@ -505,7 +536,6 @@ public class Assignments
                 toCompareCountSent = line;
             }
 
-            process.waitFor();
             int outputCode = process.exitValue();
             if (outputCode == 0) {
                 System.out.println("Script executed succesfully");
