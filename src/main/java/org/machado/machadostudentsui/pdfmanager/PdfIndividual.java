@@ -6,24 +6,73 @@ import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import jakarta.annotation.PostConstruct;
 import org.machado.machadostudentsclient.entity.Assignment;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.utils.FormatUtils;
 import org.machado.machadostudentsui.utils.SearchUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 public class PdfIndividual {
 
-    public static void fillFieldsForm(int i, Assignment assignment, List<StudentsAssignment> listStudentAssignmentRoom, String room) throws IOException {
+    @Value("${outputAssignments.path}")
+    String outputAssignmentsPath;
+
+
+    public String getTemplateFormPath() throws IOException {
+        // Obtiene el archivo como un flujo de entrada desde el classpath
+        InputStream inputStream = PdfIndividual.class.getClassLoader().getResourceAsStream("templates/FormatoAsignacionVMC.pdf");
+
+        if (inputStream == null) {
+            throw new IOException("El archivo no se encuentra en el classpath");
+        }
+
+        // Crea un archivo temporal en el sistema
+        File tempFile = File.createTempFile("FormatoAsignacionVMC" + System.nanoTime(), ".pdf");
+        tempFile.deleteOnExit();  // Asegura que se elimine cuando termine el programa
+
+        // Copia el archivo desde el InputStream al archivo temporal
+        Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        // Retorna la ruta absoluta del archivo temporal
+        return tempFile.getAbsolutePath();
+    }
+
+
+
+    public File getOutputFolder() { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
+        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
+        System.out.println("outputAssignmentsPath es: " + outputAssignmentsPath);
+        return new File(basePath, outputAssignmentsPath);  // Combina con la ruta relativa // File asegura el separador correcto
+    }
+
+
+
+    public String getOutputFileName (String outputAssignmentsFlexPath, String phoneNumber, int i) {
+        String name = phoneNumber.replaceAll("\\s+", "")
+                + "-"
+                + String.valueOf(i)
+                + ".pdf";
+        return outputAssignmentsFlexPath + File.separator + name;
+    }
+
+
+    public void fillFieldsForm(int i, Assignment assignment, List<StudentsAssignment> listStudentAssignmentRoom, String room) throws IOException {
         // Path to template form: Made manually
         //String templateForm = "../machadostudents-ui/template/FormatoAsignacionVMC.pdf";
-        String templateForm = PdfIndividual.class.getClassLoader().getResource("templates/FormatoAsignacionVMC.pdf").toString();
+        String templateForm = getTemplateFormPath(); //PdfIndividual.class.getClassLoader().getResource("templates/FormatoAsignacionVMC.pdf").toString();
 
         // Retrieve students by room
         Optional<Student> mainStudent = SearchUtils.getStudentInAssignment(listStudentAssignmentRoom, "mainStudent");
@@ -38,24 +87,20 @@ public class PdfIndividual {
         String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
         // Create output directory
-        String outputDir = System.getProperty("user.dir") + "/output/assignments/";
-        File outputFolder = new File(outputDir);
+        File outputFolder = getOutputFolder();
+        // + "/output/assignments/";
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
+        String outputAssignmentsFlexPath = outputFolder.getAbsolutePath();
 
         // Output path filled form
         //String outputPath = "../machadostudents-ui/assignments/"
-        String outputPath = outputDir
-                + phoneMainStudent.replaceAll("\\s", "")
-                //+ nameMainStudent.replaceAll("\\s", "")
-                + "-"
-                + String.valueOf(i)
-                + ".pdf";
+        String outputAssignmentsFlexFullPath = getOutputFileName(outputAssignmentsFlexPath, phoneMainStudent, i);
 
         // Create a new document template based
         PdfReader reader = new PdfReader(templateForm);
-        PdfWriter writer = new PdfWriter(outputPath);
+        PdfWriter writer = new PdfWriter(outputAssignmentsFlexFullPath);
         PdfDocument pdfDocument = new PdfDocument(reader, writer);
         PdfAcroForm form = PdfAcroForm.getAcroForm(pdfDocument, true);
 
@@ -106,11 +151,13 @@ public class PdfIndividual {
         pdfDocument.close();
 
         // In DialogBox
-        System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputPath);
+        System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputAssignmentsFlexFullPath);
 
     }
 
-    public static void fillForms(List<Assignment> assignments, List<StudentsAssignment> listStudentsAssignment) { //public static void
+
+
+    public void fillForms(List<Assignment> assignments, List<StudentsAssignment> listStudentsAssignment) { //public static void
 
         try {
             int i = 0;

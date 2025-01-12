@@ -18,7 +18,10 @@ import org.machado.machadostudentsclient.entity.Assignment;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.utils.SearchUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -27,7 +30,11 @@ import java.util.function.Consumer;
 
 import static org.machado.machadostudentsui.utils.FormatUtils.meses;
 
+@Component
 public class PdfMonthlyOverview {
+
+    @Value("${outputOverview.path}")
+    String outputOverviewPath;
 
     private static Map<Integer, Map<String, String>> styleMap = new HashMap<>();
 
@@ -146,25 +153,44 @@ public class PdfMonthlyOverview {
         table.addCell(cell);
     }
 
+    public File getOutputFolder() { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
+        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
+        return new File(basePath, outputOverviewPath);  // Combina con la ruta relativa // File asegura el separador correcto
+    }
 
-    public static void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData, List<StudentsAssignment> listStudentsAssignment) {
+
+
+    public String getOutputFileName (String outputOverviewFlexPath, String month, String year) {
+        return outputOverviewFlexPath + File.separator + month + year;
+    }
+
+
+    public void generatePDF(Map<LocalDate, Map<String, List<Assignment>>> groupedData, List<StudentsAssignment> listStudentsAssignment) {
 
         float FONT_SIZE = 8f;
         float INTERLINE = 6f;
 
         getColorsMap();
 
-        try (PdfWriter pdfWriter = new PdfWriter( "./output/overview/output.pdf");
+        LocalDate firstKey = getFirstKey(groupedData);
+        String year = firstKey.getYear()+"";
+        String firstMonth = firstKey.getMonth().toString();
+        String month = firstMonth.substring(0, 1).toUpperCase() + firstMonth.substring(1).toLowerCase();
+        String mes = meses.getOrDefault(month, "MesNoEncontrado");
+
+
+        File outputFolder = getOutputFolder();
+        String outputOverviewFlexPath = outputFolder.getAbsolutePath();
+        String outputFileName = getOutputFileName(outputOverviewFlexPath, mes, year);
+
+        try (PdfWriter pdfWriter = new PdfWriter(outputFileName);
              PdfDocument pdfDoc = new PdfDocument(pdfWriter);
              Document document = new Document(pdfDoc)) {;
 
             document.setCharacterSpacing(0.6f);
 
-            LocalDate firstKey = getFirstKey(groupedData);
-            String primerMes = firstKey.getMonth().toString();
-            String mes = primerMes.substring(0, 1).toUpperCase() + primerMes.substring(1).toLowerCase();
-
-            Paragraph pHead=new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + meses.getOrDefault(mes, "Mes no encontrado").toUpperCase() + " 2025");
+            String headerStr = String.format("VIDA & MINISTERIO CRISTIANOS - %s %s", mes.toUpperCase(), year);
+            Paragraph pHead = new Paragraph(headerStr); //new Paragraph("VIDA & MINISTERIO CRISTIANOS - " + mes.toUpperCase() + " " + year);
             pHead.setFontSize(14f);
             pHead.setTextAlignment(TextAlignment.CENTER);
             pHead.setBold();
