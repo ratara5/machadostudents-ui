@@ -26,12 +26,14 @@ import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
 import org.machado.machadostudentsui.views.popups.AssignmentEditAux;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.*;
@@ -73,6 +75,23 @@ public class Assignments
 
     private FilteredList<Assignment> filteredAssignments;
     private SortedList<Assignment> sortedAssignments;
+
+    private final PdfIndividual pdfIndividual;
+
+    private final PdfMonthlyOverview pdfMonthlyOverview;
+
+    @Autowired
+    public Assignments(PdfIndividual pdfIndividual, PdfMonthlyOverview pdfMonthlyOverview) {
+        this.pdfIndividual = pdfIndividual;
+        this.pdfMonthlyOverview = pdfMonthlyOverview;
+    }
+
+    @Value("${python.path.${os.name}}")//@Value("/usr/bin/python3.8")
+    String pythonPath;
+    @Value("${scriptsPython.path}")
+    String scriptsPythonPath;
+    @Value("${scriptsJs.path}")
+    String scriptsJsPath;
 
     public SortedList<Assignment> sorting(FilteredList<Assignment> filteredAssignments) {
 
@@ -354,10 +373,17 @@ public class Assignments
             // Get ListStudentsAssignments
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
             // Generate PDF
-            PdfMonthlyOverview.generatePDF(groupedData, listStudentsAssignment);
+            //PdfMonthlyOverview pdfMonthlyOverview = new PdfMonthlyOverview();
+            pdfMonthlyOverview.generatePDF(groupedData, listStudentsAssignment);
 
         }
 
+    }
+
+
+    public static File getFolder(String outputPath) { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
+        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
+        return new File(basePath, outputPath);  // Combina con la ruta relativa // File asegura el separador correcto
     }
 
 
@@ -393,20 +419,41 @@ public class Assignments
             filteredAssignments.setPredicate(searchFilter);
             List<StudentsAssignment> listStudentsAssignment = webClientMachado.studentsAssignmentAll().block();
 
-            PdfIndividual.fillForms(filteredAssignments, listStudentsAssignment);
+            //PdfIndividual pdfIndividual = new PdfIndividual();
+            pdfIndividual.fillForms(filteredAssignments, listStudentsAssignment);
+
+            File scriptsPythonFolder = getFolder(scriptsPythonPath);
+            String scriptsPythonFlexPath = scriptsPythonFolder.getAbsolutePath();
 
 
             // Convert PDFs in Images
             try {
 
-                String scriptPath = System.getProperty("user.dir")  + "/output_scripts/convert_pdfs/pdf_to_image.py";
-                String venvPath = System.getProperty("user.dir") + "/output_scripts/convert_pdfs/venv/bin/activate";
+                String scriptPath = scriptsPythonFlexPath + File.separator + "pdf_to_image.py"; //System.getProperty("user.dir")  + "/output_scripts/convert_pdfs/pdf_to_image.py";
 
-                // Comando para ejecutar en la shell
-                String command = " source " + venvPath + " && python3.8 " + scriptPath; //python3.8 es venv/bin/python ?
+                // venv según OS
+                String venvPath;
+                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+                    venvPath = scriptsPythonFlexPath + File.separator + "venv" + File.separator + "Scripts" + File.separator + "activate";
+                } else {
+                    venvPath = scriptsPythonFlexPath + File.separator + "venv" + File.separator + "bin" + File.separator + "activate";
+                }
+
+                // Comando según OS
+                String command;
+                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+                    command = "cmd.exe /c " + pythonPath + " " + scriptPath;
+                } else {
+                    command = "bash -c 'source " + venvPath + " && " + pythonPath + " " + scriptPath + "'";
+                }
 
                 // Usar ProcessBuilder para ejecutar el comando
-                ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+                ProcessBuilder processBuilder = new ProcessBuilder();
+                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+                    processBuilder.command("cmd.exe", "/c", command);
+                } else {
+                    processBuilder.command("bash", "-c", command);
+                }
 
                 // Configurar el directorio de trabajo esperado
                 File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal directorio de Java
@@ -428,11 +475,11 @@ public class Assignments
                 }
 
 
-                int outputCode = process.exitValue();
-                if (outputCode == 0) {
+                int exitCode = process.exitValue();
+                if (exitCode == 0) {
                     System.out.println("Script executed succesfully");
                 } else {
-                    System.out.println("Error in script execution. output code: " + outputCode);
+                    System.out.println("Error in script execution. output code: " + exitCode);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -467,69 +514,86 @@ public class Assignments
 
         System.out.println("Sending Assignments...");
 
+        File scriptsJsFolder = getFolder(scriptsJsPath);
+        String scriptsJsFlexPath = scriptsJsFolder.getAbsolutePath();
+
         // Send Images Assignments
         try {
-            /*
-            String scriptPath = "/home/ratara5/Documents/ideaProjects/machadostudents-ui/machado_ui_scripts/send_assignments/pywhat.py";
-            String command = "python3.8 " + scriptPath;
-            Process process = Runtime.getRuntime().exec(command);
-
-            // Capture output of process
-            InputStream inputStream = process.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            */
-
-            /*ProcessBuilder checkNode = new ProcessBuilder("bash", "-c", "which node");
-            Process nodeProcess = checkNode.start();
-            nodeProcess.waitFor();
-            InputStream nodeInputStream = nodeProcess.getInputStream();
-            BufferedReader nodeReader = new BufferedReader(new InputStreamReader(nodeInputStream));
-            String nodePath = nodeReader.readLine();
-            System.out.println("Node.js is located at: " + nodePath);*/
 
             //Buscar ubicación de node en linux
-            ProcessBuilder checkNode = new ProcessBuilder("bash", "-c", "which node");
+            ////Comando según OS
+            String commandSearchNode;
+            if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+                commandSearchNode = "cmd.exe /c where node";
+            } else {
+                commandSearchNode = "bash -c which node";
+            }
+
+            ////Usar ProcessBuilder para ejecutar el comando
+            ProcessBuilder checkNode = new ProcessBuilder(commandSearchNode);
             checkNode.redirectErrorStream(true); // Captura errores también
             Process nodeProcess = checkNode.start();
+
+            ////Capturar salidas del proceso
             InputStream nodeInputStream = nodeProcess.getInputStream();
             BufferedReader nodeReader = new BufferedReader(new InputStreamReader(nodeInputStream));
+
+            ////Leer salida del proceso
             String nodePath = nodeReader.readLine(); // Solo lee la primera línea
             int exitCode = nodeProcess.waitFor();
-            //// Validar salida
+
+            ////Validar salida
             if (exitCode != 0 || nodePath == null || nodePath.isEmpty()) {
                 // Fallback si no se encuentra 'node'
-                nodePath = "~/.nvm/versions/node/v20.11.0/bin/node";
+                if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("lin")) {
+                    nodePath = "~/.nvm/versions/node/v20.11.0/bin/node";
+                } else {
+                    nodePath = "C:\\Program Files\\nvm\\v20.11.0\\node.exe";
+                }
                 System.out.println("Node.js path fallback: " + nodePath);
             } else {
                 System.out.println("Node.js is located at: " + nodePath);
             }
 
+
             System.out.println("The user.dir is: " + System.getProperty("user.dir"));
-            String scriptPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/index.js";
-            String authPath = System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/.wwebjs_auth";
+            //Script JS para enviar imágenes
 
-            // Comando para ejecutar en la shell
-            String command = "WWEBJS_AUTH_PATH=" + authPath + " " + nodePath + " " + scriptPath; //
+            String scriptPath = scriptsJsFlexPath + File.separator + "index.js"; //System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/index.js";
+            String authPath = scriptsJsFlexPath + File.separator + ".wwebjs_auth"; //System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/.wwebjs_auth";
 
-            // Usar ProcessBuilder para ejecutar el comando
-            ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+            ////Comando para ejecutar en la shell
+            String commandExecuteNode = "WWEBJS_AUTH_PATH=" + authPath + " " + nodePath + " " + scriptPath; //
 
-            // Asignar node al Path del Process
+            ////Usar ProcessBuilder para ejecutar el comando
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+                processBuilder.command("cmd.exe", "/c", commandExecuteNode);
+            } else {
+                processBuilder.command("bash", "-c", commandExecuteNode);
+            }
+
+            ////Asignar node al Path del Process
             Map<String, String> environment = processBuilder.environment();
-            environment.put("PATH", environment.get("PATH") + nodePath);
+            String separator = File.pathSeparator; // Detecta el separador del sistema
+            String currentPath = environment.get("PATH");
+            if (currentPath == null) {
+                currentPath = "";
+            }
+            environment.put("PATH", currentPath + separator + nodePath);
 
-            // Configurar el directorio de trabajo esperado
+            ////Configurar el directorio de trabajo esperado
             File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal en el mismo directorio de Java
             processBuilder.directory(workingDir); // Establecer el directorio de trabajo
 
             Process process = processBuilder.start();
             process.waitFor();
 
-            // Capture output of process
+            ////Capture output of process
             InputStream inputStream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-            // Read line by line output of process
+            ////Read line by line output of process
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
