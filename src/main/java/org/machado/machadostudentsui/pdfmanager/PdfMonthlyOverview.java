@@ -180,6 +180,9 @@ public class PdfMonthlyOverview {
 
 
         File outputFolder = getOutputFolder();
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
         String outputOverviewFlexPath = outputFolder.getAbsolutePath();
         String outputFileName = getOutputFileName(outputOverviewFlexPath, mes, year);
 
