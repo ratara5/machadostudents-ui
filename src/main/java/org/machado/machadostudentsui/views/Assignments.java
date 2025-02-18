@@ -32,10 +32,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
@@ -161,15 +158,13 @@ public class Assignments
         // Agregar las columnas grupales al TableView
         assignmentTable.getColumns().addAll(ppalGroupColumn, auxGroupColumn);
 
-        assignmentTable.setItems(observableAssignmentList);
-
 
         //Get new observable list that includes the columns made with FactoryCell
-        ObservableList<Assignment> observableListFull = FXCollections.observableArrayList(assignmentTable.getItems());
-        filteredAssignments = new FilteredList<>(observableListFull);
+        filteredAssignments = new FilteredList<>(observableAssignmentList);
+
         // Show Assignments for the day 1 of the next month
         Predicate<Assignment> initialFilter = assignment -> {
-            return assignment.getDate().isAfter(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+            return !assignment.getDate().isBefore(LocalDate.now().plusMonths(1).withDayOfMonth(1)); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
         };
         filteredAssignments.setPredicate(initialFilter);
 
@@ -252,8 +247,11 @@ public class Assignments
     private void search() {
 
         Predicate<Assignment> searchFilter = assignment -> {
-            return assignment.getDate().isAfter(datePickerStart.getValue()) &&
-                    assignment.getDate().isBefore(datePickerEnd.getValue()); //assignment.getDate().getMonth() >= LocalDate.now().getMonth();
+            LocalDate assignmentDate = assignment.getDate();
+            LocalDate startDate = datePickerStart.getValue();
+            LocalDate endDate = datePickerEnd.getValue();
+
+            return !assignmentDate.isBefore(startDate) && !assignmentDate.isAfter(endDate);
         };
         filteredAssignments.setPredicate(searchFilter);
 
@@ -489,8 +487,10 @@ public class Assignments
             //int count = (int) assignments.stream()
                     //.filter(obj -> !obj.isWeekWithoutMeet())
                     //.count();
+            System.out.println("La cuenta de generadas es " + toCompareCountGenerated);
+            System.out.println("La cantidad de asignaciones es " + filteredAssignments.size());
 
-            if(Objects.equals(toCompareCountGenerated, Integer.toString(filteredAssignments.size()))){ //assignments.size()
+            if(Integer.parseInt(toCompareCountGenerated) >= filteredAssignments.size()){ //assignments.size()
 
                 // Unblock SEND TO WHATSAPP Button
                 System.out.println("Unblock SEND TO WHATSAPP Button");
@@ -522,11 +522,11 @@ public class Assignments
 
             //Buscar ubicación de node en linux
             ////Comando según OS
-            String commandSearchNode;
+            List<String> commandSearchNode;
             if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
-                commandSearchNode = "cmd.exe /c where node";
+                commandSearchNode = Arrays.asList("cmd.exe", "/c", "where node");
             } else {
-                commandSearchNode = "bash -c which node";
+                commandSearchNode = Arrays.asList("bash", "-c", "which node");
             }
 
             ////Usar ProcessBuilder para ejecutar el comando
