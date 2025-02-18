@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +155,19 @@ public class PdfIndividual {
         // In DialogBox
         System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputAssignmentsFlexFullPath);
 
+        // Create form copy if assistant student exists
+        if (assistantStudent.isPresent()){
+            try {
+                Path sourcePath = Paths.get(outputAssignmentsFlexFullPath);
+                String newFileName = assistantStudent.get().getPhoneNumber() + sourcePath.getFileName().toString().substring(10);
+                Path targetPath = sourcePath.resolveSibling(newFileName);
+
+                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Formulario para " + assignment.getName() + " generado como copia en: " + outputAssignmentsFlexFullPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
