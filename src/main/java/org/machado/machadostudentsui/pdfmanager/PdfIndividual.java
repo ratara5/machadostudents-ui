@@ -34,30 +34,30 @@ public class PdfIndividual {
 
 
     public String getTemplateFormPath() throws IOException {
-        // Obtiene el archivo como un flujo de entrada desde el classpath
+        // Gets the file as an input stream from the classpath
         InputStream inputStream = PdfIndividual.class.getClassLoader().getResourceAsStream("templates/FormatoAsignacionVMC.pdf");
 
         if (inputStream == null) {
             throw new IOException("El archivo no se encuentra en el classpath");
         }
 
-        // Crea un archivo temporal en el sistema
+        // Creates a temporary file in the system
         File tempFile = File.createTempFile("FormatoAsignacionVMC" + System.nanoTime(), ".pdf");
-        tempFile.deleteOnExit();  // Asegura que se elimine cuando termine el programa
+        tempFile.deleteOnExit();  // Ensures it is deleted when the program finishes
 
-        // Copia el archivo desde el InputStream al archivo temporal
+        // Copies the file from the InputStream to the temporary file
         Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-        // Retorna la ruta absoluta del archivo temporal
+        // Returns the absolute path of the temporary file
         return tempFile.getAbsolutePath();
     }
 
 
 
-    public File getOutputFolder() { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
-        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
+    public File getOutputFolder() { // accesses the scriptPath field without needing to pass it as a parameter, since it is an instance field of the class, injected by Spring with the @Value annotation
+        String basePath = System.getProperty("user.dir"); // Current working directory
         System.out.println("outputAssignmentsPath es: " + outputAssignmentsPath);
-        return new File(basePath, outputAssignmentsPath);  // Combina con la ruta relativa // File asegura el separador correcto
+        return new File(basePath, outputAssignmentsPath);  // Combines with the relative path // File ensures the correct separator
     }
 
 

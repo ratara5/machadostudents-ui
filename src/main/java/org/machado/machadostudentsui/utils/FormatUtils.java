@@ -83,7 +83,7 @@ public class FormatUtils {
         Set<T> set1 = new HashSet<>(list1);
         Set<T> set2 = new HashSet<>(list2);
 
-        // Calcular la intersección
+        // Calculate the intersection
         set1.retainAll(set2);
 
         return new ArrayList<>(set1);

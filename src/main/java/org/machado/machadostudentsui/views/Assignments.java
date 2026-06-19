@@ -92,32 +92,35 @@ public class Assignments
 
     public SortedList<Assignment> sorting(FilteredList<Assignment> filteredAssignments) {
 
-        sortedAssignments = new SortedList<>(filteredAssignments, (Assignment o1, Assignment o2) -> {
+        sortedAssignments = new SortedList<>(filteredAssignments, (o1, o2) -> {
             String name1 = o1.getName();
             String name2 = o2.getName();
 
-            // "P" at start priority
-            if (name1.startsWith("P") && !name2.startsWith("P")) return -1;
-            if (!name1.startsWith("P") && name2.startsWith("P")) return 1;
+            // "P" at start → highest priority
+            boolean p1 = name1.startsWith("P"), p2 = name2.startsWith("P");
+            if (p1 != p2) return p1 ? -1 : 1;
 
-            // "O" at end priority
-            if (name1.startsWith("O") && !name2.startsWith("O")) return 1;
-            if (!name1.startsWith("O") && name2.startsWith("O")) return -1;
+            // "O" at start → lowest priority
+            boolean o1s = name1.startsWith("O"), o2s = name2.startsWith("O");
+            if (o1s != o2s) return o1s ? 1 : -1;
 
-            // Order number ascending
-            boolean name1IsNumber = Character.isDigit(name1.charAt(0));
-            boolean name2IsNumber = Character.isDigit(name2.charAt(0));
+            // Numeric prefix → sort numerically
+            boolean n1 = Character.isDigit(name1.charAt(0));
+            boolean n2 = Character.isDigit(name2.charAt(0));
 
-            if (name1IsNumber && !name2IsNumber) return -1;
-            if (!name1IsNumber && name2IsNumber) return 1;
+            if (n1 && n2) {
+                int num1 = Integer.parseInt(name1.replaceAll("^(\\d+).*", "$1"));
+                int num2 = Integer.parseInt(name2.replaceAll("^(\\d+).*", "$1"));
+                if (num1 != num2) return Integer.compare(num1, num2);
+            } else if (n1 != n2) {
+                return n1 ? -1 : 1;
+            }
 
-            // Both or none is number, alphabetic order
             return name1.compareTo(name2);
         });
 
         sortedAssignments.comparatorProperty().bind(assignmentTable.comparatorProperty());
         return sortedAssignments;
-
     }
 
     private TableColumn<Assignment, String> createStudentColumn(String columnName, Function<Assignment, Integer> idExtractor) {
@@ -148,14 +151,14 @@ public class Assignments
         TableColumn<Assignment, String> mainAuxColumn = createStudentColumn("mainAuxName", Assignment::getMainStudentAuxId);
         TableColumn<Assignment, String> assistantAuxColumn = createStudentColumn("assistantAuxName", Assignment::getAssistantStudentAuxId);
 
-        // Crear las columnas grupales
+        // Create group columns
         TableColumn<Assignment, String> ppalGroupColumn = new TableColumn<>("Ppal");
         ppalGroupColumn.getColumns().addAll(mainPpalColumn, assistantPpalColumn);
 
         TableColumn<Assignment, String> auxGroupColumn = new TableColumn<>("Aux");
         auxGroupColumn.getColumns().addAll(mainAuxColumn, assistantAuxColumn);
 
-        // Agregar las columnas grupales al TableView
+        // Add group columns to TableView
         assignmentTable.getColumns().addAll(ppalGroupColumn, auxGroupColumn);
 
 
@@ -379,9 +382,9 @@ public class Assignments
     }
 
 
-    public static File getFolder(String outputPath) { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
-        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
-        return new File(basePath, outputPath);  // Combina con la ruta relativa // File asegura el separador correcto
+    public static File getFolder(String outputPath) { // accesses the scriptPath field without needing to pass it as a parameter, since it is an instance field of the class, injected by Spring with the @Value annotation
+        String basePath = System.getProperty("user.dir"); // Current working directory
+        return new File(basePath, outputPath);  // Combines with the relative path // File ensures the correct separator
     }
 
 
@@ -429,7 +432,7 @@ public class Assignments
 
                 String scriptPath = scriptsPythonFlexPath + File.separator + "pdf_to_image.py"; //System.getProperty("user.dir")  + "/output_scripts/convert_pdfs/pdf_to_image.py";
 
-                // venv según OS
+                // venv according to OS
                 String venvPath;
                 if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
                     venvPath = scriptsPythonFlexPath + File.separator + "venv" + File.separator + "Scripts" + File.separator + "activate";
@@ -437,7 +440,7 @@ public class Assignments
                     venvPath = scriptsPythonFlexPath + File.separator + "venv" + File.separator + "bin" + File.separator + "activate";
                 }
 
-                // Comando según OS
+                // Command according to OS
                 String command;
                 if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
                     command = "cmd.exe /c " + pythonPath + " " + scriptPath;
@@ -445,7 +448,7 @@ public class Assignments
                     command = "bash -c 'source " + venvPath + " && " + pythonPath + " " + scriptPath + "'";
                 }
 
-                // Usar ProcessBuilder para ejecutar el comando
+                // Use ProcessBuilder to execute the command
                 ProcessBuilder processBuilder = new ProcessBuilder();
                 if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
                     processBuilder.command("cmd.exe", "/c", command);
@@ -453,10 +456,10 @@ public class Assignments
                     processBuilder.command("bash", "-c", command);
                 }
 
-                // Configurar el directorio de trabajo esperado
-                File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal directorio de Java
+                // Configure the expected working directory
+                File workingDir = new File(System.getProperty("user.dir")); // Place terminal in Java directory
                 System.out.println(workingDir);
-                processBuilder.directory(workingDir); // Establecer el directorio de trabajo
+                processBuilder.directory(workingDir); // Set the working directory
 
                 Process process = processBuilder.start();
                 process.waitFor();
@@ -520,8 +523,8 @@ public class Assignments
         // Send Images Assignments
         try {
 
-            //Buscar ubicación de node en linux
-            ////Comando según OS
+            //Find node location on linux
+            ////Command according to OS
             List<String> commandSearchNode;
             if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
                 commandSearchNode = Arrays.asList("cmd.exe", "/c", "where node");
@@ -529,17 +532,17 @@ public class Assignments
                 commandSearchNode = Arrays.asList("bash", "-c", "which node");
             }
 
-            ////Usar ProcessBuilder para ejecutar el comando
+            ////Use ProcessBuilder to execute the command
             ProcessBuilder checkNode = new ProcessBuilder(commandSearchNode);
-            checkNode.redirectErrorStream(true); // Captura errores también
+            checkNode.redirectErrorStream(true); // Also capture errors
             Process nodeProcess = checkNode.start();
 
             ////Capturar salidas del proceso
             InputStream nodeInputStream = nodeProcess.getInputStream();
             BufferedReader nodeReader = new BufferedReader(new InputStreamReader(nodeInputStream));
 
-            ////Leer salida del proceso
-            String nodePath = nodeReader.readLine(); // Solo lee la primera línea
+            ////Read process output
+            String nodePath = nodeReader.readLine(); // Only reads the first line
             int exitCode = nodeProcess.waitFor();
 
             ////Validar salida
@@ -557,15 +560,15 @@ public class Assignments
 
 
             System.out.println("The user.dir is: " + System.getProperty("user.dir"));
-            //Script JS para enviar imágenes
+            //JS script to send images
 
             String scriptPath = scriptsJsFlexPath + File.separator + "index.js"; //System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/index.js";
             String authPath = scriptsJsFlexPath + File.separator + ".wwebjs_auth"; //System.getProperty("user.dir") + "/output_scripts/whatsapp-sender/.wwebjs_auth";
 
-            ////Comando para ejecutar en la shell
+            ////Command to execute in the shell
             String commandExecuteNode = "WWEBJS_AUTH_PATH=" + authPath + " " + nodePath + " " + scriptPath; //
 
-            ////Usar ProcessBuilder para ejecutar el comando
+            ////Use ProcessBuilder to execute the command
             ProcessBuilder processBuilder = new ProcessBuilder();
             if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
                 processBuilder.command("cmd.exe", "/c", commandExecuteNode);
@@ -582,9 +585,9 @@ public class Assignments
             }
             environment.put("PATH", currentPath + separator + nodePath);
 
-            ////Configurar el directorio de trabajo esperado
-            File workingDir = new File(System.getProperty("user.dir")); // Colocar terminal en el mismo directorio de Java
-            processBuilder.directory(workingDir); // Establecer el directorio de trabajo
+            ////Configure the expected working directory
+            File workingDir = new File(System.getProperty("user.dir")); // Place terminal in the same Java directory
+            processBuilder.directory(workingDir); // Set the working directory
 
             Process process = processBuilder.start();
             process.waitFor();

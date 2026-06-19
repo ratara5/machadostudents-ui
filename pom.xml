@@ -30,10 +30,10 @@
 			<id>itext-repo</id>
 			<url>https://repo1.maven.org/maven2</url>
 			<releases>
-				<updatePolicy>always</updatePolicy>  <!-- Esto siempre intentará actualizar -->
+				<updatePolicy>always</updatePolicy>  <!-- This will always try to update -->
 			</releases>
 			<snapshots>
-				<updatePolicy>always</updatePolicy>  <!-- Si usas snapshots, también puede aplicarse aquí -->
+				<updatePolicy>always</updatePolicy>  <!-- If you use snapshots, this can also apply here -->
 			</snapshots>
 		</repository>
 	</repositories>
@@ -47,8 +47,8 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<!--Cuando se hace el mvn clean install del machadostudents-frontend no se requiere, pues
-			esta dependency de dependencyManagement ya está en el padre y se hereda acá
+			<!--When running mvn clean install from machadostudents-frontend this is not required, since
+			this dependencyManagement dependency is already in the parent and is inherited here
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
@@ -129,7 +129,7 @@
 
 			</plugin>
 
-			<!-- Maven Jar Plugin (para agregar entradas personalizadas al manifiesto) -->
+			<!-- Maven Jar Plugin (to add custom entries to the manifest) -->
 			<!--<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>

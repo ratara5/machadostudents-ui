@@ -69,10 +69,10 @@ public class PdfMonthlyOverview {
     }
 
     public static void getColorsMap() {
-        // styleMap es el mapa principal que contendrá los estilos para diferentes valores de i
+        // styleMap is the main map that will contain styles for different values of i
 
 
-        // Styles for i=0 y i=4
+        // Styles for i=0 and i=4
         Map<String, String> style0 = new HashMap<>();
         style0.put("fontColor", "#000000"); // Black
         style0.put("bgColor", "#90B1DD"); // Light blue
@@ -153,9 +153,9 @@ public class PdfMonthlyOverview {
         table.addCell(cell);
     }
 
-    public File getOutputFolder() { //accede al campo scriptPath sin necesidad de pasarla como parámetro, ya que es un campo de instancia de la clase, pues es inyectado por Spring con la anotación @Value
-        String basePath = System.getProperty("user.dir"); // Directorio de trabajo actual
-        return new File(basePath, outputOverviewPath);  // Combina con la ruta relativa // File asegura el separador correcto
+    public File getOutputFolder() { // accesses the scriptPath field without needing to pass it as a parameter, since it is an instance field of the class, injected by Spring with the @Value annotation
+        String basePath = System.getProperty("user.dir"); // Current working directory
+        return new File(basePath, outputOverviewPath);  // Combines with the relative path // File ensures the correct separator
     }
 
 
@@ -211,7 +211,7 @@ public class PdfMonthlyOverview {
                 String reading = (String) returnedObject;
 
 
-                Paragraph p=new Paragraph("MIÉRCOLES " + date.getDayOfMonth() + " / " + reading);
+                Paragraph p=new Paragraph("MARTES " + date.getDayOfMonth() + " / " + reading);
                 p.setFontSize(11f);
                 p.setFontColor(WebColors.getRGBColor("#5A5D5E"),1);
                 p.setBold();

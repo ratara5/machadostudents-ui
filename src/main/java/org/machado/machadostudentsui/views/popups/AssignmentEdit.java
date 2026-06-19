@@ -41,7 +41,7 @@ public class AssignmentEdit extends AssignmentEditBase {
             stage.setScene(new Scene(loader.load()));
             stage.initModality(Modality.APPLICATION_MODAL);*/
 
-            // SUGERIDO POR GPT
+            // SUGGESTED BY GPT
             Stage stage = new Stage(StageStyle.UNDECORATED);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(AssignmentEdit.class.getResource("AssignmentEdit.fxml"));
