@@ -59,10 +59,10 @@ public class SearchUtils {
         return result;
     }
 
-    public static Optional<Student> getStudentInAssignment (List<StudentsAssignment> listStudentAssignmentRoom, String rolStudent) {
+    public static Optional<Student> getStudentInAssignment (List<StudentsAssignment> listStudentAssignmentRoom, String roleStudent) {
 
         Optional<Student> studentInAssignment = listStudentAssignmentRoom.stream()
-                .filter(student -> rolStudent.equals(student.getRolStudent()))
+                .filter(student -> roleStudent.equals(student.getRoleStudent()))
                 .map(StudentsAssignment::getStudent)
                 .findFirst();
 

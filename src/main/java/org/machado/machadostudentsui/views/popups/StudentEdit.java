@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public class StudentEdit {
 
     @FXML
-    private ComboBox<Rol> rol;
+    private ComboBox<Role> role;
     @FXML
     private Label title;
     @FXML
@@ -54,7 +54,7 @@ public class StudentEdit {
     private FXMLLoader studentLoader;
 
     public static void addNew(Consumer<Student> saveHandler,
-                              Supplier<List<Rol>> supplier,
+                              Supplier<List<Role>> supplier,
                               List<Contact> contacts/*,
                               List<StudentsAssignment> studentsAssignments,
                               List<Assignment> assignments,
@@ -72,7 +72,7 @@ public class StudentEdit {
 
     public static void edit(Student student,
                             Consumer<Student> saveHandler,
-                            Supplier<List<Rol>> supplier,
+                            Supplier<List<Role>> supplier,
                             List<Contact> contacts,
                             List<StudentsAssignment> studentsAssignments,
                             List<Assignment> assignments,
@@ -112,7 +112,7 @@ public class StudentEdit {
                 .message(String.format("Do you want to save changes for Student %s?", nameField.getText()))
                 .okActionListener(() -> {
 
-                    student.setRolId(rol.getValue().getRolId());
+                    student.setRoleId(role.getValue().getRoleId());
                     student.setName(nameField.getText());
                     student.setLastName(lastNameField.getText());
 
@@ -132,7 +132,7 @@ public class StudentEdit {
 
     private void init(Student student,
                       Consumer<Student> saveHandler,
-                      Supplier<List<Rol>> supplier,
+                      Supplier<List<Role>> supplier,
                       List<Contact> contacts,
                       List<StudentsAssignment> studentsAssignments,
                       List<Assignment> assignments,
@@ -146,7 +146,7 @@ public class StudentEdit {
         this.studentLoader = studentLoader;
 
         //Assign combobox options
-        rol.getItems().addAll(supplier.get());
+        role.getItems().addAll(supplier.get());
         contact.getItems().addAll(contacts);
 
         if(null == student) {
@@ -161,7 +161,7 @@ public class StudentEdit {
         }*/
 
         //Populate fields
-        rol.setValue(this.student.getRol());
+        role.setValue(this.student.getRole());
         nameField.setText(this.student.getName());
         lastNameField.setText(this.student.getLastName());
 

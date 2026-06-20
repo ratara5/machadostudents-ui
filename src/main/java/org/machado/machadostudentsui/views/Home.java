@@ -1,50 +1,38 @@
 package org.machado.machadostudentsui.views;
 
 
-import com.itextpdf.kernel.colors.DeviceRgb;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.machado.machadostudentsclient.WebClientMachado;
-import org.machado.machadostudentsclient.entity.Rol;
+import org.machado.machadostudentsclient.entity.Role;
 import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
-import org.machado.machadostudentsui.MachadostudentsFxApplication;
 import org.machado.machadostudentsui.utils.Menu;
+import org.machado.machadostudentsui.views.common.Dialog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDate;
+import java.time.Duration;
 import java.util.*;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
 
 @Controller
-public class Home extends AbstractController { //implements Consumer<List<Student>>
-    /*@FXML
-    private Label countStudentsLabel;
-    @FXML
-    private Label countStudentsAssignmentsLabel;*/
+public class Home extends AbstractController {
     @FXML
     private VBox vBoxTest;
-
 
     @Autowired
     private WebClientMachado webClientMachado;
@@ -58,18 +46,18 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
         List<Student> students = webClientMachado.studentsAll().block();
         int totalStudents = students.size();
 
-        List<Rol> listRol = students.stream()
-                .map(Student::getRol)
+        List<Role> listRol = students.stream()
+                .map(Student::getRole)
                 .collect(Collectors.toList());
         List<String> listRolName = listRol.stream()
-                .map(Rol::getName)
+                .map(Role::getName)
                 .collect(Collectors.toList());
-        List<String> listDistinctRolName = listRolName.stream()
+        List<String> listDistinctRoleName = listRolName.stream()
                 .distinct()
                 .collect(Collectors.toList());
 
         HashMap<String, Integer> rolesMap = new LinkedHashMap<>();
-        for (String rolName: listDistinctRolName) {
+        for (String rolName: listDistinctRoleName) {
             Integer counted = listRolName.stream()
                     .filter(x-> Objects.equals(x, rolName))
                     .collect(Collectors.toList())
@@ -94,14 +82,8 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
 
         HashMap<String, Integer> hashMap = new LinkedHashMap<>();
         for (int i = 0; i < names.length; i++) {
-            hashMap.put(names[i], Integer.valueOf(counts[i]));
+            hashMap.put(names[i], counts[i]);
         }
-
-        /*String cssVBox = "-fx-border-color: red;\n" +
-                "-fx-border-insets: 5;\n" +
-                "-fx-border-width: 3;\n" +
-                "-fx-border-style: dashed;\n";*/
-
 
         String cssVBox = "-fx-padding: 20 20 20 20;" +
                 "-fx-border-color: primary; " +
@@ -142,8 +124,6 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
         for (String name: hashMap.keySet()) {
 
             VBox vbox = new VBox();
-            //vbox.setBackground(new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-            //vbox.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
 
             Label labelTitle = new Label();
             labelTitle.setText(name.toUpperCase());
@@ -164,44 +144,33 @@ public class Home extends AbstractController { //implements Consumer<List<Studen
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("MainFrame.fxml")); //button.getText()
                     loader.load();
                     MainFrame mainFrame = loader.getController();
-                    if(Objects.equals(button.getText(), "STUDENTS")) {
+                    if ("STUDENTS".equals(button.getText())) {
                         mainFrame.loadView(Menu.Student);
-                    } else if (Objects.equals(button.getText(), "STUDENTS ASSIGNMENTS")) {
+                    } else if ("STUDENTS ASSIGNMENTS".equals(button.getText())) {
                         mainFrame.loadView(Menu.Assignment);
                     }
-                    Parent p = loader.getRoot();
                     Stage s = new Stage();
-                    s.setScene(new Scene(p));
+                    s.setScene(new Scene(loader.getRoot()));
                     s.show();
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
             });
 
-            vbox.getChildren().addAll(labelTitle, labelContent, button); //chart
+            vbox.getChildren().addAll(labelTitle, labelContent, button);
             vbox.setStyle(cssVBox);
-            if(name.equals("students")){
+            if ("students".equals(name) && chart != null) {
                 vbox.getChildren().add(chart);
             }
 
-            gridPane.add(vbox, i+0, 0);
+            gridPane.add(vbox, i, 0);
             i++;
         }
-
-    }
-
-    /*@Override
-    public void accept(List<Student> students) {
-
-    }*/
-
-    @FXML
-    public void goToStudents() {
-
     }
 
     @FXML
-    public void goToAssignments() {
+    public void goToStudents() {}
 
-    }
+    @FXML
+    public void goToAssignments() {}
 }

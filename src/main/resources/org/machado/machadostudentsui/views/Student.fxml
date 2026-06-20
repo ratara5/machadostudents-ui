@@ -43,7 +43,7 @@
         </HBox>
         <HBox styleClass="search-bar">
             <children>
-                <ComboBox fx:id="rol" prefWidth="150.0" />
+                <ComboBox fx:id="role" prefWidth="150.0" />
                 <TextField fx:id="name" promptText="Student Name" />
                 <Button mnemonicParsing="false" onAction="#search" styleClass="wid-120" text="SEARCH" />
                 <Button layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#clear" styleClass="wid-120" text="CLEAR" />
@@ -91,9 +91,9 @@
                             <PropertyValueFactory property="email"/>
                         </cellValueFactory>
                     </TableColumn>-->
-                    <TableColumn text="RolId">
+                    <TableColumn text="RoleId">
                         <cellValueFactory>
-                            <PropertyValueFactory property="rolId"/>
+                            <PropertyValueFactory property="roleId"/>
                         </cellValueFactory>
                     </TableColumn>
                     <!--<TableColumn text="ContactId">

@@ -134,9 +134,9 @@
                            <PropertyValueFactory property="email"/>
                         </cellValueFactory>
                      </TableColumn>-->
-                     <TableColumn text="RolId">
+                     <TableColumn text="RoleId">
                         <cellValueFactory>
-                           <PropertyValueFactory property="rolId"/>
+                           <PropertyValueFactory property="roleId"/>
                         </cellValueFactory>
                      </TableColumn>
                      <!--<TableColumn text="ContactId">
@@ -159,8 +159,8 @@
                           <RadioButton text="M" toggleGroup="$genderToggleGroup"/>
                     </VBox>
                   <VBox>
-                      <Slider fx:id="rolSlider" min="0" max="6" value="0"/>
-                      <Label fx:id="sliderValueLabel" text="Slide for select a Rol"/>
+                      <Slider fx:id="roleSlider" min="0" max="6" value="0"/>
+                      <Label fx:id="sliderValueLabel" text="Slide for select a Role"/>
                   </VBox>
                   <HBox>
                       <Button text="Apply Filters" onAction="#applyFilters">

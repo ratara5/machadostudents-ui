@@ -547,7 +547,7 @@ public class Assignments
 
             ////Validar salida
             if (exitCode != 0 || nodePath == null || nodePath.isEmpty()) {
-                // Fallback si no se encuentra 'node'
+                // Fallback if 'node' is not found
                 if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("lin")) {
                     nodePath = "~/.nvm/versions/node/v20.11.0/bin/node";
                 } else {

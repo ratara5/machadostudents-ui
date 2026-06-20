@@ -5,7 +5,7 @@ public enum Menu {
 
     Home("AYFM Dashboard"),
     Assignment("Assignments Management"),
-    Rol("Roles Management"),
+    Role("Roles Management"),
     Student("Students Management");
 
     private String title;

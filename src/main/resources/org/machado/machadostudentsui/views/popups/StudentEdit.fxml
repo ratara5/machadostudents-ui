@@ -31,8 +31,8 @@
                   <Label fx:id="message" />
                   <VBox styleClass="dialog-input-box">
                      <children>
-                        <Label text="Rol" />
-                        <ComboBox fx:id="rol" maxWidth="1.7976931348623157E308" promptText="Select Rol" />
+                        <Label text="Role" />
+                        <ComboBox fx:id="role" maxWidth="1.7976931348623157E308" promptText="Select Role" />
                      </children>
                   </VBox>
                   <VBox layoutX="10.0" layoutY="48.0" styleClass="dialog-input-box">
@@ -76,8 +76,8 @@
                   </VBox>
                   <!--<VBox layoutX="10.0" layoutY="104.0" styleClass="dialog-input-box">
                      <children>
-                        <Label text="RolID" />
-                        <TextField fx:id="rolIdField" promptText="Enter RolId" />
+                        <Label text="RoleID" />
+                        <TextField fx:id="roleIdField" promptText="Enter RoleId" />
                      </children>
                   </VBox>-->
                   <!--<VBox layoutX="10.0" layoutY="104.0" styleClass="dialog-input-box">

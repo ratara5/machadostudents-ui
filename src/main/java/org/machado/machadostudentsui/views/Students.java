@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Controller
-public class Students extends AbstractController implements Consumer<List<Student>>, Supplier<List<Rol>>{ //REMOVE Implements
+public class Students extends AbstractController implements Consumer<List<Student>>, Supplier<List<Role>>{ //REMOVE Implements
 
     @FXML
-    private ComboBox<Rol> rol;
+    private ComboBox<Role> role;
     @FXML
     private TextField name;
     @FXML
@@ -35,8 +35,8 @@ public class Students extends AbstractController implements Consumer<List<Studen
         FXMLLoader loader = new FXMLLoader(Students.class.getResource("Student.fxml"));
         Students controller = (Students) loader.getController();
 
-        rol.getItems().clear();
-        rol.getItems().addAll(this.get());
+        role.getItems().clear();
+        role.getItems().addAll(this.get());
         studentTable.getItems().clear(); // Implements Consumer
         webClientMachado.studentsAll().subscribe(this); //Implement Consumer
 
@@ -47,8 +47,8 @@ public class Students extends AbstractController implements Consumer<List<Studen
             if(null != student) {
                 StudentEdit.edit(student,
                         (Consumer<Student>) this::save,
-                        (Supplier<List<Rol>>) this::get,
-                        (List<Contact>) this.getContacts(), //rolWebClient::rolesAll
+                        (Supplier<List<Role>>) this::get,
+                        (List<Contact>) this.getContacts(), //roleWebClient::rolesAll
                         (List<StudentsAssignment>) this.getStudentsAssignmentByStudent(student.getStudentId()),
                         (List<Assignment>) this.getAssignments(),
                         (Students) controller,
@@ -90,20 +90,20 @@ public class Students extends AbstractController implements Consumer<List<Studen
     @FXML
     private void search() {
         studentTable.getItems().clear();
-        List<Student> studentsByRol = webClientMachado.studentsByRol(rol.getValue().getRolId()+"").block(); //TODO STudent method: search by category
-        studentTable.getItems().addAll(studentsByRol);
+        List<Student> studentsByRole = webClientMachado.studentsByRole(role.getValue().getRoleId()+"").block(); //TODO STudent method: search by category
+        studentTable.getItems().addAll(studentsByRole);
     }
 
     @FXML
     private void clear() {
-        rol.setValue(null);
+        role.setValue(null);
         name.clear();
         studentTable.getItems().clear();
     }
 
     @FXML
     private void addNew() {
-        rol.getItems().clear();
+        role.getItems().clear();
         ArrayList<Assignment> assignments= new ArrayList<>();
         ArrayList<StudentsAssignment> studentsAssignments= new ArrayList<>();
         StudentEdit.addNew(this::save,
@@ -131,8 +131,8 @@ public class Students extends AbstractController implements Consumer<List<Studen
     }
 
     @Override
-    public List<Rol> get() {
-        List<Rol> rolesAll = webClientMachado.rolesAll().block();
+    public List<Role> get() {
+        List<Role> rolesAll = webClientMachado.rolesAll().block();
         return rolesAll;
     }
 

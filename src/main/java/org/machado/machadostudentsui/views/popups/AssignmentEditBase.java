@@ -51,7 +51,7 @@ public abstract class AssignmentEditBase {
     private TextField name;
     @FXML private ToggleGroup genderToggleGroup;
     @FXML
-    private Slider rolSlider; //could be ageSlider
+    private Slider roleSlider; //could be ageSlider
     @FXML
     private Label sliderValueLabel;
     @FXML
@@ -156,7 +156,7 @@ public abstract class AssignmentEditBase {
 
         // 3. listeners
         //// From @FXML initialize(). Start
-        rolSlider.valueProperty().addListener(new ChangeListener<Number>() {
+        roleSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 // Update label text with actual slider value
@@ -288,21 +288,21 @@ public abstract class AssignmentEditBase {
         filteredStudents.setPredicate(student -> {
 
             boolean genderCondition = true;
-            boolean rolCondition = true;
+            boolean roleCondition = true;
 
             // Filter by gender (genre)
             if (selectedGender != null) {
                 genderCondition = selectedGender.equals(student.getGenre());
             }
 
-            // Filter by rol // TODO: similar filter by age
-            int selectedRol = (int) rolSlider.getValue();
-            if(selectedRol != 0 ) {
-                rolCondition = student.getRolId() == selectedRol;
+            // Filter by role // TODO: similar filter by age
+            int selectedRole = (int) roleSlider.getValue();
+            if(selectedRole != 0 ) {
+                roleCondition = student.getRoleId() == selectedRole;
             }
 
             // Mix two conditions using AND
-            return genderCondition && rolCondition;
+            return genderCondition && roleCondition;
 
         });
 
@@ -315,8 +315,8 @@ public abstract class AssignmentEditBase {
             genderToggleGroup.getSelectedToggle().setSelected(false);
         }
 
-        // Restart rol filter
-        rolSlider.setValue(0);
+        // Restart role filter
+        roleSlider.setValue(0);
 
         applyFilters();
         updateTableView();

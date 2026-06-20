@@ -77,7 +77,7 @@ public class AssignmentEditAux extends AssignmentEditBase {
                 for (int i = 0; i < listStudentsAssignment.size(); i++) {
                     StudentsAssignment studentsAssignment = listStudentsAssignment.get(i);
                     Student student = listStudentsAssignment.get(i).getStudent();
-                    if (Objects.equals(studentsAssignment.getRolStudent(), label.getUserData())
+                    if (Objects.equals(studentsAssignment.getRoleStudent(), label.getUserData())
                             && Objects.equals(studentsAssignment.getRoom(), "Aux")) {
                         label.setId(studentsAssignment.getStudentId() + "");
                         label.setText(student.getName() + " " + student.getLastName());

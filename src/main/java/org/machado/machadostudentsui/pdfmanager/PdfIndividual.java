@@ -84,7 +84,7 @@ public class PdfIndividual {
             return;
         }
 
-        // Ever present, as "mainStudent" is the DEFAULT value in rol_student
+        // Ever present, as "mainStudent" is the DEFAULT value in role_student
         String nameMainStudent = mainStudent.get().getName() + " " + mainStudent.get().getLastName() ;
         String phoneMainStudent = mainStudent.get().getPhoneNumber();
 
@@ -153,7 +153,7 @@ public class PdfIndividual {
         pdfDocument.close();
 
         // In DialogBox
-        System.out.println("Formulario para " + assignment.getName() + " generado en: " + outputAssignmentsFlexFullPath);
+        System.out.println("Form " + assignment.getName() + " gen in: " + outputAssignmentsFlexFullPath);
 
         // Create form copy if assistant student exists
         if (assistantStudent.isPresent()){

@@ -203,13 +203,13 @@
     -fx-spacing: 10;
 }
 
-.rol-container {
+.role-container {
     -fx-padding: 0 20 20 20;
     -fx-vgap: 20;
     -fx-hgap: 20;
 }
 
-.rol-item {
+.role-item {
     -fx-alignment: center-left;
     -fx-padding: 20;
     -fx-spacing: 20;
@@ -217,12 +217,12 @@
     -fx-background-color: secondary;
 }
 
-.rol-item Label {
+.role-item Label {
     -fx-font-size: 24px;
     -fx-text-fill: secondary-light;
 }
 
-.rol-item SVGPath {
+.role-item SVGPath {
     -fx-fill: secondary-light;
 }
 
