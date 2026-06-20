@@ -16,13 +16,13 @@
       stylesheets="@style/application.css"
       xmlns="http://javafx.com/javafx/8.0.171"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.machado.machadostudentsui.views.Rols">
+      fx:controller="org.machado.machadostudentsui.views.Roles">
    <children>
       <HBox>
          <children>
             <HBox styleClass="content-view-header" HBox.hgrow="ALWAYS">
                <children>
-                  <Label fx:id="title" styleClass="title" text="Rol" />
+                  <Label fx:id="title" styleClass="title" text="Role" />
                </children>
             </HBox>
             <VBox onMouseClicked="#addNew" styleClass="add-button">
@@ -32,6 +32,6 @@
             </VBox>
          </children>
       </HBox>
-      <TilePane fx:id="container" prefHeight="200.0" prefWidth="200.0" styleClass="rol-container" VBox.vgrow="ALWAYS" />
+      <TilePane fx:id="container" prefHeight="200.0" prefWidth="200.0" styleClass="role-container" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>

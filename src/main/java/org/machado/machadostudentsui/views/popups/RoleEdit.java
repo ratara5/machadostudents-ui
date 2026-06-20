@@ -2,7 +2,7 @@ package org.machado.machadostudentsui.views.popups;
 
 
 import org.machado.machadostudentsclient.PosException;
-import org.machado.machadostudentsclient.entity.Rol;
+import org.machado.machadostudentsclient.entity.Role;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,7 +14,7 @@ import javafx.stage.StageStyle;
 
 import java.util.function.Consumer;
 
-public class RolEdit {
+public class RoleEdit {
 
     @FXML
     private Label title;
@@ -23,24 +23,24 @@ public class RolEdit {
     @FXML
     private TextField name;
 
-    private Consumer<Rol> saveHandler;
-    private Rol rol;
+    private Consumer<Role> saveHandler;
+    private Role role;
 
-    public static void showView(Consumer<Rol> saveHandler) {
+    public static void showView(Consumer<Role> saveHandler) {
         showView(null, saveHandler);
     }
 
-    public static void showView(Rol rol, Consumer<Rol> saveHandler) {
+    public static void showView(Role role, Consumer<Role> saveHandler) {
         try {
 
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
 
-            FXMLLoader loader = new FXMLLoader(RolEdit.class.getResource("RolEdit.fxml"));
+            FXMLLoader loader = new FXMLLoader(RoleEdit.class.getResource("RoleEdit.fxml"));
             stage.setScene(new Scene(loader.load()));
 
-            RolEdit edit = loader.getController();
-            edit.init(rol, saveHandler);
+            RoleEdit edit = loader.getController();
+            edit.init(role, saveHandler);
 
             stage.show();
 
@@ -49,17 +49,17 @@ public class RolEdit {
         }
     }
 
-    private void init(Rol rol, Consumer<Rol> saveHandler) {
+    private void init(Role role, Consumer<Role> saveHandler) {
 
         this.saveHandler = saveHandler;
 
-        if(null == rol) {
-            this.rol = new Rol();
+        if(null == role) {
+            this.role = new Role();
             this.title.setText("Add New Category");
         } else {
-            this.rol = rol;
+            this.role = role;
             this.title.setText("Edit Category");
-            this.name.setText(rol.getName());
+            this.name.setText(role.getName());
         }
 
     }
@@ -73,8 +73,8 @@ public class RolEdit {
     private void save() {
 
         try {
-            rol.setName(name.getText());
-            saveHandler.accept(rol);
+            role.setName(name.getText());
+            saveHandler.accept(role);
             close();
         } catch (PosException e) {
             message.setText(e.getMessage());
