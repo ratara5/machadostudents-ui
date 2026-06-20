@@ -206,6 +206,7 @@ public class Assignments
 
                         (Assignments) controller,
                         (FXMLLoader) loader);
+                assignmentTable.refresh();
             }
         });
         MenuItem editAux = new MenuItem("Assign Student in Aux Room");
@@ -222,6 +223,7 @@ public class Assignments
 
                         (Assignments) controller,
                         (FXMLLoader) loader);
+                assignmentTable.refresh();
             }
         });
 

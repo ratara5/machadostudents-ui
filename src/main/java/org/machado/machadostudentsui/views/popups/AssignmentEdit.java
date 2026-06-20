@@ -69,18 +69,19 @@ public class AssignmentEdit extends AssignmentEditBase {
 
     @Override
     protected void processLabels(List<StudentsAssignment> listStudentsAssignment) {
-        ////Fill name students labels
         for (Object node : studentsGridPane.getChildren()) {
-
             if (node instanceof Label) {
                 Label label = (Label) node;
-                for (int i = 0; i < listStudentsAssignment.size(); i++) {
-                    StudentsAssignment studentsAssignment = listStudentsAssignment.get(i);
-                    Student student = listStudentsAssignment.get(i).getStudent();
-                    if (Objects.equals(studentsAssignment.getRoleStudent(), label.getUserData())
-                            && Objects.equals(studentsAssignment.getRoom(), "Ppal")) {
-                        label.setId(studentsAssignment.getStudentId() + "");
-                        label.setText(student.getName() + " " + student.getLastName());
+                for (StudentsAssignment sa : listStudentsAssignment) {
+                    if (Objects.equals(sa.getRoleStudent(), label.getUserData())
+                            && Objects.equals(sa.getRoom(), "Ppal")) {
+                        Student student = allStudents.stream()
+                                .filter(s -> s.getStudentId() == sa.getStudentId())
+                                .findFirst().orElse(null);
+                        if (student != null) {
+                            label.setId(sa.getStudentId() + "");
+                            label.setText(student.getName() + " " + student.getLastName());
+                        }
                     }
                 }
             }

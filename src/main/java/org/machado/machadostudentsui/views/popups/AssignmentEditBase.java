@@ -23,7 +23,6 @@ import org.machado.machadostudentsui.utils.FormatUtils;
 import org.machado.machadostudentsui.views.Assignments;
 import org.machado.machadostudentsui.views.common.Dialog;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +73,7 @@ public abstract class AssignmentEditBase {
     private List<StudentsAssignment> listStudentsAssignment;
     private FilteredList<Student> filteredStudents;
     private List<Integer> studentIdList;
+    protected List<Student> allStudents;
     private int actualStudentId;
     private int draggedStudentId;
     private LinkedList<Integer> candidatesIdsToDeleteList = new LinkedList<>();
@@ -105,6 +105,7 @@ public abstract class AssignmentEditBase {
 
         ObservableList<Student> observableStudentList = FXCollections.observableList(supplier.get());
         filteredStudents = new FilteredList<>(observableStudentList);
+        this.allStudents = new ArrayList<>(observableStudentList);
 
         this.studentsAssignment = new StudentsAssignment();
         List<Student> studentList = listStudentsAssignment.stream() //All student.getStudentId come with Id 0
@@ -419,36 +420,37 @@ public abstract class AssignmentEditBase {
                 .title("Save Changes")
                 .message(String.format("Do you want to save changes for Assignment %s?", assignment.getName()))
                 .okActionListener(() -> {
+                    try {
+                        for (int id : toSaveIds) {
+                            StudentsAssignment studentsAssignment =
+                                    new StudentsAssignment(assignment.getAssignmentId(),
+                                            id,
+                                            hashMapLabels.get(id),
+                                            selectedRadioButton.getText());
+                            saveHandler.accept(studentsAssignment);
+                        }
 
-                    for(int id:toSaveIds){
-                        StudentsAssignment studentsAssignment =
-                                new StudentsAssignment(assignment.getAssignmentId(),
-                                        id,
-                                        hashMapLabels.get(id),
-                                        selectedRadioButton.getText()); //TODO:SELECT room FROM Combobox (OK)
-                        saveHandler.accept(studentsAssignment);
+                        for (int id : toDeleteIds) {
+                            deleteHandler.accept(Integer.toString(id),
+                                    Integer.toString(assignment.getAssignmentId()));
+                        }
+
+                        if (checkbox.isSelected()) {
+                            assignment.setWeekWithoutMeet(true);
+                        }
+                        close();
+                    } catch (Exception e) {
+                        new Alert(Alert.AlertType.ERROR,
+                                "Save failed: " + e.getMessage()).show();
+                        e.printStackTrace();
                     }
-
-                    for(int id:toDeleteIds){ // TODO: in one query: WHERE ... OR ...
-                        deleteHandler.accept(Integer.toString(id),
-                                Integer.toString(assignment.getAssignmentId()));
-                    }
-
-                    // If without meeting week
-                    if(checkbox.isSelected()){
-                        assignment.setWeekWithoutMeet(true);
-
-                    }
-                    close();
-
                 })
                 .build().show();
 
     }
 
     @FXML
-    private void close() throws IOException {
-        Assignments assignmentController = assignmentLoader.getController(); // Null!!
+    private void close() {
         title.getScene().getWindow().hide();
     }
 
