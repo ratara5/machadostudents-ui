@@ -62,7 +62,8 @@ public class AutoAssigner {
         Map<Integer, LocalDate> presidenteHistory = buildRotationHistory(allSA, assignmentMap,
                 sa -> {
                     Assignment a = assignmentMap.get(sa.getAssignmentId());
-                    return a != null && S_PRESIDENTE.equals(a.getSection().trim());
+                    return a != null && S_PRESIDENTE.equals(a.getSection().trim())
+                            && !a.isWeekWithoutMeet();
                 });
 
         Map<Integer, LocalDate> estudioHistory = buildRotationHistory(allSA, assignmentMap,
