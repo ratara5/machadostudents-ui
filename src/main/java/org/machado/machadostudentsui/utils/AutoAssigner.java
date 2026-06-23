@@ -78,6 +78,7 @@ public class AutoAssigner {
 
         Set<Integer> smmUsedThisMonth = new HashSet<>();
         Set<Integer> presidenteUsedThisPeriod = new HashSet<>();
+        Set<Integer> tesoros3UsedThisPeriod = new HashSet<>();
 
         for (Assignment a : sorted) {
             if (a.isWeekWithoutMeet()) continue;
@@ -89,7 +90,7 @@ public class AutoAssigner {
             boolean hasAux = datesWithAux.contains(date);
 
             if (S_TESOROS.equals(section)) {
-                assignTesoros(a, orderedStudents, usedToday);
+                assignTesoros(a, orderedStudents, usedToday, tesoros3UsedThisPeriod);
             } else if (S_SMM.equals(section)) {
                 assignSmm(a, orderedStudents, usedToday, hasAux, smmTracker, smmUsedThisMonth);
             } else if (S_NUVICRI.equals(section)) {
@@ -180,7 +181,8 @@ public class AutoAssigner {
 
     // ===================== TESOROS DE LA BIBLIA =====================
 
-    private void assignTesoros(Assignment a, List<Student> orderedStudents, Set<Integer> usedToday) {
+    private void assignTesoros(Assignment a, List<Student> orderedStudents, Set<Integer> usedToday,
+                                Set<Integer> tesoros3UsedThisPeriod) {
         String name = a.getName();
         Set<Integer> allowedRoles;
         if (name.startsWith("1")) {
@@ -189,6 +191,21 @@ public class AutoAssigner {
             allowedRoles = rollProbability(0.6) ? Set.of(SIERVO) : Set.of(ANCIANO);
         } else if (name.startsWith("3")) {
             allowedRoles = Set.of(ESTUDIANTE, PUBLICADOR, BAUTIZADO, SIERVO);
+            Student ppal = filterFirst(orderedStudents, usedToday, tesoros3UsedThisPeriod, allowedRoles, "H");
+            if (ppal != null) {
+                save(a, ppal, PPAL, MAIN);
+                usedToday.add(ppal.getStudentId());
+                tesoros3UsedThisPeriod.add(ppal.getStudentId());
+            }
+            if (isEvenWeek(a.getDate())) {
+                Student aux = filterFirst(orderedStudents, usedToday, tesoros3UsedThisPeriod, allowedRoles, "H");
+                if (aux != null) {
+                    save(a, aux, AUX, MAIN);
+                    usedToday.add(aux.getStudentId());
+                    tesoros3UsedThisPeriod.add(aux.getStudentId());
+                }
+            }
+            return;
         } else {
             allowedRoles = Set.of(ANCIANO);
         }
@@ -240,9 +257,10 @@ public class AutoAssigner {
             if (main == null) continue;
 
             usedToday.add(main.getStudentId());
+            boolean isDebuting = room.equals(AUX) && main.getNewestAssignmentDate() == null;
 
             for (int asstAttempt = 0; asstAttempt < 20; asstAttempt++) {
-                int asstRole = pickFromDistribution();
+                int asstRole = (isDebuting && asstAttempt == 0) ? PRECURSOR : pickFromDistribution();
                 if (!isValidCombo(mainRole, asstRole, tracker)) continue;
 
                 String genderFilter = isEmpiece ? null : main.getGenre();
@@ -405,6 +423,16 @@ public class AutoAssigner {
                 .filter(s -> allowedRoles == null || allowedRoles.contains(s.getRoleId()))
                 .filter(s -> gender == null || gender.equals(s.getGenre()))
                 .collect(Collectors.toList());
+    }
+
+    private Student filterFirst(List<Student> orderedStudents, Set<Integer> usedToday,
+                                 Set<Integer> usedPeriod, Set<Integer> allowedRoles, String gender) {
+        return orderedStudents.stream()
+                .filter(s -> !usedToday.contains(s.getStudentId()))
+                .filter(s -> !usedPeriod.contains(s.getStudentId()))
+                .filter(s -> allowedRoles.contains(s.getRoleId()))
+                .filter(s -> gender == null || gender.equals(s.getGenre()))
+                .findFirst().orElse(null);
     }
 
     // ===================== HELPERS =====================
