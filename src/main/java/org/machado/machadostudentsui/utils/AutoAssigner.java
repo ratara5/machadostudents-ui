@@ -94,8 +94,8 @@ public class AutoAssigner {
                 assignSmm(a, orderedStudents, usedToday, hasAux, smmTracker, smmUsedThisMonth);
             } else if (S_NUVICRI.equals(section)) {
                 assignNuviCri(a, orderedStudents, usedToday, estudioHistory);
-            } else if (S_PRESIDENTE.equals(section) && hasAux) {
-                assignPresidente(a, orderedStudents, usedToday, presidenteHistory, presidenteUsedThisPeriod);
+            } else if (S_PRESIDENTE.equals(section)) {
+                assignPresidente(a, orderedStudents, usedToday, presidenteHistory, presidenteUsedThisPeriod, hasAux);
             } else if (S_ORACION.equals(section)) {
                 assignOracion(a, orderedStudents, usedToday);
             }
@@ -187,10 +187,12 @@ public class AutoAssigner {
             allowedRoles = Set.of(ANCIANO);
         } else if (name.startsWith("2")) {
             allowedRoles = rollProbability(0.6) ? Set.of(SIERVO) : Set.of(ANCIANO);
+        } else if (name.startsWith("3")) {
+            allowedRoles = Set.of(ESTUDIANTE, PUBLICADOR, BAUTIZADO, SIERVO);
         } else {
             allowedRoles = Set.of(ANCIANO);
         }
-        assignSingleStudent(a, PPAL, MAIN, orderedStudents, usedToday, allowedRoles, null);
+        assignSingleStudent(a, PPAL, MAIN, orderedStudents, usedToday, allowedRoles, "H");
     }
 
     // ===================== SEAMOS MEJORES MAESTROS =====================
@@ -347,18 +349,30 @@ public class AutoAssigner {
     // ===================== PRESIDENTE =====================
 
     private void assignPresidente(Assignment a, List<Student> orderedStudents, Set<Integer> usedToday,
-                                   Map<Integer, LocalDate> history,
-                                   Set<Integer> presidenteUsedThisPeriod) {
-        Student selected = orderedStudents.stream()
+                                    Map<Integer, LocalDate> history,
+                                    Set<Integer> presidenteUsedThisPeriod, boolean hasAux) {
+        Student ppal = orderedStudents.stream()
                 .filter(s -> !usedToday.contains(s.getStudentId()))
                 .filter(s -> !presidenteUsedThisPeriod.contains(s.getStudentId()))
                 .filter(s -> s.getRoleId() == ANCIANO)
                 .min(Comparator.comparing(s -> history.getOrDefault(s.getStudentId(), LocalDate.MIN)))
                 .orElse(null);
-        if (selected != null) {
-            save(a, selected, PPAL, MAIN);
-            usedToday.add(selected.getStudentId());
-            presidenteUsedThisPeriod.add(selected.getStudentId());
+        if (ppal == null) return;
+        save(a, ppal, PPAL, MAIN);
+        usedToday.add(ppal.getStudentId());
+        presidenteUsedThisPeriod.add(ppal.getStudentId());
+        if (hasAux) {
+            Student aux = orderedStudents.stream()
+                    .filter(s -> !usedToday.contains(s.getStudentId()))
+                    .filter(s -> !presidenteUsedThisPeriod.contains(s.getStudentId()))
+                    .filter(s -> s.getRoleId() == ANCIANO || s.getRoleId() == SIERVO)
+                    .min(Comparator.comparing(s -> history.getOrDefault(s.getStudentId(), LocalDate.MIN)))
+                    .orElse(null);
+            if (aux != null) {
+                save(a, aux, AUX, MAIN);
+                usedToday.add(aux.getStudentId());
+                presidenteUsedThisPeriod.add(aux.getStudentId());
+            }
         }
     }
 
