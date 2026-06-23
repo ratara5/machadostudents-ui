@@ -21,6 +21,7 @@ import org.machado.machadostudentsclient.entity.Student;
 import org.machado.machadostudentsclient.entity.StudentsAssignment;
 import org.machado.machadostudentsui.pdfmanager.PdfIndividual;
 import org.machado.machadostudentsui.pdfmanager.PdfMonthlyOverview;
+import org.machado.machadostudentsui.utils.AutoAssigner;
 import org.machado.machadostudentsui.utils.SearchUtils;
 import org.machado.machadostudentsui.views.common.Dialog;
 import org.machado.machadostudentsui.views.popups.AssignmentEdit;
@@ -56,6 +57,8 @@ public class Assignments
     private VBox genAssiButton;
     @FXML
     private VBox sendWappButton;
+    @FXML
+    private VBox autoAssignButton;
 
     @FXML
     private TableColumn<Assignment, LocalDate> dateColumn;
@@ -242,6 +245,10 @@ public class Assignments
         tooltip3.setFont(new Font("Arial", 16));
         Tooltip.install(genAssiButton, tooltip3);
 
+        Tooltip tooltipAuto = new Tooltip("Auto Assign Students");
+        tooltipAuto.setFont(new Font("Arial", 16));
+        Tooltip.install(autoAssignButton, tooltipAuto);
+
         sendWappButton.setVisible(false);
         sendWappButton.setManaged(false);
 
@@ -295,6 +302,39 @@ public class Assignments
     // Assignments will be loaded in Server when SpringbootApplication will be running
     @FXML
     private void addNew() {
+    }
+
+
+    @FXML
+    private void autoAssign() {
+        List<Assignment> assignmentsToAssign = filteredAssignments.stream().collect(Collectors.toList());
+
+        if (assignmentsToAssign.isEmpty()) {
+            Dialog.DialogBuilder.builder()
+                    .title("No assignments")
+                    .message("There are no assignments for the current filter period.")
+                    .build().show();
+            return;
+        }
+
+        Dialog.DialogBuilder.builder()
+                .title("Auto Assign")
+                .message(String.format("This will clear existing assignments for %d assignments and reassign automatically. Continue?", assignmentsToAssign.size()))
+                .okActionListener(() -> {
+                    try {
+                        AutoAssigner autoAssigner = new AutoAssigner(webClientMachado);
+                        autoAssigner.autoAssign(assignmentsToAssign);
+                        assignmentTable.refresh();
+                        Dialog.DialogBuilder.builder()
+                                .title("Complete")
+                                .message("Auto-assignment completed successfully. Review and adjust manually if needed.")
+                                .build().show();
+                    } catch (Exception e) {
+                        new Alert(Alert.AlertType.ERROR, "Auto-assignment failed: " + e.getMessage()).show();
+                        e.printStackTrace();
+                    }
+                })
+                .build().show();
     }
 
 
