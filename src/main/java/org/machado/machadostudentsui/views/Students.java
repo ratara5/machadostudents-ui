@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Controller
 public class Students extends AbstractController implements Consumer<List<Student>>, Supplier<List<Role>>{ //REMOVE Implements
@@ -89,16 +90,28 @@ public class Students extends AbstractController implements Consumer<List<Studen
 
     @FXML
     private void search() {
-        studentTable.getItems().clear();
-        List<Student> studentsByRole = webClientMachado.studentsByRole(role.getValue().getRoleId()+"").block(); //TODO STudent method: search by category
-        studentTable.getItems().addAll(studentsByRole);
+        String nameText = name.getText().trim().toLowerCase();
+        Role selectedRole = role.getValue();
+
+        List<Student> students = (selectedRole != null)
+                ? webClientMachado.studentsByRole(selectedRole.getRoleId() + "").block()
+                : webClientMachado.studentsAll().block();
+
+        if (!nameText.isEmpty()) {
+            students = students.stream()
+                    .filter(s -> (s.getName() != null && s.getName().toLowerCase().contains(nameText))
+                              || (s.getLastName() != null && s.getLastName().toLowerCase().contains(nameText)))
+                    .collect(Collectors.toList());
+        }
+
+        studentTable.getItems().setAll(students);
     }
 
     @FXML
     private void clear() {
         role.setValue(null);
         name.clear();
-        studentTable.getItems().clear();
+        webClientMachado.studentsAll().subscribe(this);
     }
 
     @FXML
