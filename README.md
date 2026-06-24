@@ -41,6 +41,19 @@ Spring Boot Launcher
 | Roles       | `Rols`         | `Rol.fxml`           | Role management                        |
 | Dialog      | `Dialog`       | `Dialog.fxml`        | Reusable confirmation dialog           |
 
+### Students View — Search
+
+The Student view provides a combined search with two dimensions:
+
+| Filter     | Control    | Behavior                                                          |
+|------------|------------|-------------------------------------------------------------------|
+| **Role**   | ComboBox   | Filters by selected role (backend query `/students/role/{id}`)    |
+| **Name**   | TextField  | Client-side case-insensitive match on `name` / `lastName`         |
+
+Filters combine as AND: selecting a role AND typing a name returns only students matching both. Leaving both empty loads all students. The **CLEAR** button resets both filters and reloads the full list.
+
+After every data load (initial, search, clear) columns auto-resize to fit the longest visible content, including the header text. This prevents truncation and ensures readability without manual column dragging.
+
 ### Popups
 
 | Popup                  | Controller            | FXML                      | Purpose                              |
@@ -130,6 +143,56 @@ mvn -pl machadostudents-ui spring-boot:run
 mvn -pl machadostudents-ui package -DskipTests
 java -jar machadostudents-ui/target/machadostudents-ui-1.0.jar
 ```
+
+## Auto-Assignment Rules
+
+The `AutoAssigner` (`utils/AutoAssigner.java`) applies rule-based student assignment from the Assignments view.
+
+### TESOROS DE LA BIBLIA
+
+| Name    | Roles                          | Gender | Room | Even-week Aux                   |
+|---------|--------------------------------|--------|------|---------------------------------|
+| `1.`    | ANCIANO                        | H      | PPAL | —                               |
+| `2.`    | SIERVO (60%) / ANCIANO (40%)   | H      | PPAL | —                               |
+| `3.`    | All except ANCIANO             | H      | PPAL | + second (different) student in AUX |
+| Other   | ANCIANO                        | H      | PPAL | —                               |
+
+- `3.` selects each student at most once per period across all dates.
+
+### SEAMOS MEJORES MAESTROS
+
+| Type                      | Description                                                                       |
+|---------------------------|-----------------------------------------------------------------------------------|
+| **Discurso**              | ANCIANO or SIERVO, gender H. Even weeks: second student (same roles) in AUX.      |
+| **Empiece conversaciones**| Two-student pair with weighted random role distribution. Even weeks: second pair in AUX. |
+| **Other**                 | Same as Empiece, but assistant matches main's gender.                             |
+| **Debuting rule**         | If a never-assigned student is selected as main in AUX room, the assistant role is forced to PRECURSOR on the first attempt. |
+
+- Students are used at most once per month across all SMM assignments.
+- "Once a month" combos (Precursor-Precursor, Anciano-Anciano/Siervo) are limited to one occurrence per run.
+
+### NUESTRA VIDA CRISTIANA
+
+| Type                 | Room | Roles                                                                            |
+|----------------------|------|----------------------------------------------------------------------------------|
+| **Estudio bíblico**  | PPAL | Main: ANCIANO (H). Assistant: ANCIANO/SIERVO/BAUTIZADO (H). Oldest-history rotation. |
+| **Other**            | PPAL | ANCIANO (80%) / SIERVO (20%).                                                    |
+
+### PRESIDENTE
+
+| Week   | Room PPAL                          | Room AUX                                        |
+|--------|------------------------------------|-------------------------------------------------|
+| Odd    | ANCIANO (oldest-history rotation)  | —                                               |
+| Even   | ANCIANO (oldest-history rotation)  | ANCIANO or SIERVO, different student            |
+
+- Each student is used at most once per period.
+- History excludes weeks without meeting.
+
+### ORACIÓN FINAL
+
+| Roles                                       | Gender | Room |
+|---------------------------------------------|--------|------|
+| ANCIANO/SIERVO (50%) or BAUTIZADO (50%)     | H      | PPAL |
 
 ## Backend Requirement
 
