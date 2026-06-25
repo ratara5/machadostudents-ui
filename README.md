@@ -1,3 +1,5 @@
+> **ARCHIVED** — This repository has been consolidated into [machadostudents-frontend](https://github.com/ratara5/machadostudents-frontend). Maintaining a separate UI repo with an external client dependency added build friction with no architectural benefit — the client was never consumed independently. See the consolidated repo for all future development.
+
 # machadostudents-ui
 
 JavaFX desktop frontend for managing congregation meeting assignments. Integrates Spring Boot for dependency injection and service coordination, iText 7 for PDF generation, and external scripts for WhatsApp sharing.
